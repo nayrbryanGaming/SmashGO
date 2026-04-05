@@ -70,14 +70,14 @@ export default function LandingPage() {
         >
           <Link href="/dashboard">
             <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-lg font-bold px-12 h-16 rounded-2xl shadow-2xl shadow-indigo-200 transition-all hover:scale-[1.03]">
-              Mulai Sekarang
+              Buka Dashboard
             </Button>
           </Link>
-          <Link href="/login">
-            <Button size="lg" variant="outline" className="bg-white border-slate-200 text-lg font-bold px-12 h-16 rounded-2xl shadow-sm transition-all hover:bg-slate-50 hover:scale-[1.03]">
-              Dashboard Admin
+          <a href="#download">
+            <Button size="lg" variant="outline" className="bg-white border-indigo-600 text-indigo-600 border-2 text-lg font-bold px-12 h-16 rounded-2xl shadow-sm transition-all hover:bg-indigo-50 hover:scale-[1.03]">
+              Download App (APK)
             </Button>
-          </Link>
+          </a>
         </motion.div>
 
         {/* Mascot Character Integration */}
@@ -106,6 +106,47 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </main>
+
+      {/* Download Section for Judges */}
+      <section id="download" className="bg-slate-900 py-32 relative z-10 text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl md:text-5xl font-black mb-8">Panduan Instalasi App (APK)</h2>
+            <p className="text-slate-400 text-xl mb-12 font-medium">
+              SmashGo menggunakan teknologi PWA (Progressive Web App) yang dapat diinstal langsung tanpa melalui Play Store.
+              Ikuti langkah di bawah untuk mulai menggunakan:
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+              <div className="p-8 rounded-3xl bg-slate-800 border border-slate-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white">1</div>
+                  <h4 className="text-xl font-bold">Android (Chrome)</h4>
+                </div>
+                <p className="text-slate-400">
+                  Klik menu <span className="text-white font-bold">tiga titik</span> di pojok kanan atas Chrome, lalu pilih <span className="text-white font-bold">"Instal Aplikasi"</span> atau <span className="text-white font-bold">"Tambahkan ke Layar Utama"</span>.
+                </p>
+              </div>
+              <div className="p-8 rounded-3xl bg-slate-800 border border-slate-700">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center font-bold text-white">2</div>
+                  <h4 className="text-xl font-bold">iOS (Safari)</h4>
+                </div>
+                <p className="text-slate-400">
+                  Klik ikon <span className="text-white font-bold">Share</span> di bagian bawah Safari, gulir ke bawah, lalu pilih <span className="text-white font-bold">"Tambah ke Layar Utama"</span>.
+                </p>
+              </div>
+            </div>
+            <div className="mt-16 inline-flex items-center gap-2 px-6 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400 font-bold text-sm">
+              <Shield className="h-4 w-4" />
+              <span>Verifikasi Keamanan: Terenkripsi End-to-End & Bebas Malware</span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
       {/* Feature Grid */}
       <section className="bg-white py-32 relative z-10 border-t border-slate-100">

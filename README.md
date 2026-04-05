@@ -1,6 +1,12 @@
 # SmashGo — Corporate Badminton Management Platform
 
+[![Vercel Deployment](https://img.shields.io/badge/Deployment-Live-emerald?style=for-the-badge&logo=vercel)](https://smashgo.vercel.app/)
+[![GitHub license](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
 SmashGo is a production-ready, full-stack badminton court management and matchmaking application designed for corporate internal use. It features a robust ELO-based matchmaking system, secure payment integration with Midtrans, and a comprehensive admin dashboard for venue operations.
+
+## 🔗 Live Application (APK/PWA)
+**Access & Install Now**: [https://smashgo.vercel.app/](https://smashgo.vercel.app/)
 
 ## 🚀 Key Features
 
@@ -55,14 +61,14 @@ SmashGo is a production-ready, full-stack badminton court management and matchma
 - **Webhook Verification**: Payment callbacks include SHA512 signature verification.
 - **Route Protection**: Middleware-level auth and role-based access control (Admin/User).
 
-## 📱 Mobile Installation (PWA)
+## 📱 Mobile Installation (Download APK/PWA)
 
-SmashGo is built as a Progressive Web App (PWA). You don't need to run Flutter or build an APK manually. 
+SmashGo is built as a Progressive Web App (PWA) for the best mobile experience. 
 
-1. Deploy the app to **Vercel**.
-2. Open the Vercel URL in **Chrome** (Android) or **Safari** (iOS) on your mobile device.
-3. Select **"Add to Home Screen"** from the browser menu.
-4. The app will be installed on your phone with the premium SmashGo icon and function like a native application.
+1. Open [https://smashgo.vercel.app/](https://smashgo.vercel.app/) in your mobile browser.
+2. **Android**: Tap the three dots and select **"Install App"** or **"Add to Home Screen"**.
+3. **iOS**: Tap the Share icon and select **"Add to Home Screen"**.
+4. The app will be installed on your device with a premium icon and full-screen functionality.
 
 ## 📄 License
 
