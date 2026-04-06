@@ -1,12 +1,32 @@
 # SmashGo — Corporate Badminton Management Platform
 
-[![Vercel Deployment](https://img.shields.io/badge/Deployment-Live-emerald?style=for-the-badge&logo=vercel)](https://smashgo.vercel.app/)
+[![Live App](https://img.shields.io/badge/🚀_LIVE_APP-smashgo.vercel.app-6366f1?style=for-the-badge)](https://smashgo.vercel.app/)
+[![Download APK/PWA](https://img.shields.io/badge/📱_DOWNLOAD_APK/PWA-Install_Now-22c55e?style=for-the-badge)](https://smashgo.vercel.app/)
 [![GitHub license](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 SmashGo is a production-ready, full-stack badminton court management and matchmaking application designed for corporate internal use. It features a robust ELO-based matchmaking system, secure payment integration with Midtrans, and a comprehensive admin dashboard for venue operations.
 
-## 🔗 Live Application (APK/PWA)
-**Access & Install Now**: [https://smashgo.vercel.app/](https://smashgo.vercel.app/)
+---
+
+## 📱 DOWNLOAD APK / INSTALL APP — KLIK SEKARANG
+
+> **🔗 Link Resmi:** [https://smashgo.vercel.app/](https://smashgo.vercel.app/)
+
+### Cara Install di Android (APK / PWA):
+1. Buka **[https://smashgo.vercel.app/](https://smashgo.vercel.app/)** di browser HP (Chrome direkomendasikan)
+2. Tunggu halaman terbuka sepenuhnya
+3. Ketuk **tiga titik (⋮)** di pojok kanan atas Chrome
+4. Pilih **"Install App"** atau **"Tambahkan ke Layar Utama"**
+5. Konfirmasi install → Ikon SmashGo muncul di Home Screen ✅
+6. Buka app → login / daftar akun → siap digunakan!
+
+### Cara Install di iOS (iPhone/iPad):
+1. Buka **[https://smashgo.vercel.app/](https://smashgo.vercel.app/)** di Safari
+2. Ketuk ikon **Share (kotak dengan panah ke atas)**
+3. Pilih **"Add to Home Screen"**
+4. Ketuk **"Add"** → Ikon SmashGo muncul di Home Screen ✅
+
+---
 
 ## 🚀 Key Features
 
@@ -19,15 +39,18 @@ SmashGo is a production-ready, full-stack badminton court management and matchma
 
 ## 🛠 Tech Stack
 
-- **Framework**: [Next.js 14 (App Router)](https://nextjs.org)
-- **Language**: TypeScript
-- **Database / Auth**: [Supabase](https://supabase.com) (PostgreSQL, RLS enabled)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com)
-- **Payments**: [Midtrans Node SDK](https://github.com/Midtrans/midtrans-nodejs-client)
-- **Email**: [Resend](https://resend.com)
-- **Notif**: [Firebase Cloud Messaging (FCM)](https://firebase.google.com/products/cloud-messaging)
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Database / Auth | Supabase (PostgreSQL + RLS) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Payments | Midtrans Node SDK |
+| Email | Resend |
+| Notifications | Firebase Cloud Messaging (FCM) |
+| Deployment | Vercel (free tier) |
 
-## 📦 Getting Started
+## 📦 Getting Started (Development)
 
 ### Prerequisites
 
@@ -39,18 +62,24 @@ SmashGo is a production-ready, full-stack badminton court management and matchma
 
 ### Installation
 
-1. Install dependencies:
+1. Clone this repo:
+   ```bash
+   git clone https://github.com/nayrbryanGaming/SmashGO.git
+   cd SmashGO
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Setup environment variables:
+3. Setup environment variables:
    Copy `.env.example` to `.env.local` and fill in your credentials.
 
-3. Initialize the database:
-   Run the SQL migration located in `supabase/migrations/001_initial_schema.sql` in your Supabase SQL editor.
+4. Initialize the database:
+   Run the SQL migration in `supabase/migrations/001_initial_schema.sql` in your Supabase SQL editor.
 
-4. Start the development server:
+5. Start the development server:
    ```bash
    npm run dev
    ```
@@ -60,15 +89,6 @@ SmashGo is a production-ready, full-stack badminton court management and matchma
 - **RLS (Row Level Security)**: Every table in Supabase is protected with strict RLS policies.
 - **Webhook Verification**: Payment callbacks include SHA512 signature verification.
 - **Route Protection**: Middleware-level auth and role-based access control (Admin/User).
-
-## 📱 Mobile Installation (Download APK/PWA)
-
-SmashGo is built as a Progressive Web App (PWA) for the best mobile experience. 
-
-1. Open [https://smashgo.vercel.app/](https://smashgo.vercel.app/) in your mobile browser.
-2. **Android**: Tap the three dots and select **"Install App"** or **"Add to Home Screen"**.
-3. **iOS**: Tap the Share icon and select **"Add to Home Screen"**.
-4. The app will be installed on your device with a premium icon and full-screen functionality.
 
 ## 📄 License
 
