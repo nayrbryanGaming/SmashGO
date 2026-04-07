@@ -1,11 +1,11 @@
 {
-  "name": "SmashGo - Badminton Court Management",
+  "name": "SmashGo",
   "short_name": "SmashGo",
-  "description": "Platform manajemen apangan bulu tangkis korporat",
-  "start_url": "/",
+  "description": "Corporate Badminton Court Management Platform",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#4f46e5",
+  "background_color": "#020617",
+  "theme_color": "#4F46E5",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

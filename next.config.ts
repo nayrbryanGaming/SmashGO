@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development'
+})
 
-const nextConfig: NextConfig = {
+const nextConfig: NextConfig = withPWA({
   /* config options here */
   images: {
     remotePatterns: [
@@ -9,15 +15,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
-  experimental: {
-    // serverActions: { allowedOrigins: ["smashgo.vercel.app"] },
-  },
   eslint: {
-    ignoreDuringBuilds: true, // We ignore eslint during build to ensure fast deploy for demo
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Ignore TS errors to ensure deploy doesn't fail on Vercel
+    ignoreBuildErrors: true,
   }
-};
+});
 
 export default nextConfig;
