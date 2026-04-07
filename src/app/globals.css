@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes scan-laser {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(100%); }
+}
+
+.animate-scan-laser {
+  animation: scan-laser 2s ease-in-out infinite;
+}

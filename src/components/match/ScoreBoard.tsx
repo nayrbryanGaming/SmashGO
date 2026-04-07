@@ -1,233 +1,105 @@
-// src/components/match/ScoreBoard.tsx
 'use client'
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
+// src/components/match/ScoreBoard.tsx
 import { Card, CardContent } from '@/components/ui/card'
-import { Trophy, Users, Wifi, WifiOff, RotateCcw, Save } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Trophy } from 'lucide-react'
 
-interface ScoreBoardProps {
-  matchId: string
-  playerAName: string
-  playerBName: string
-  currentUserId: string
-  playerAId: string
-  playerBId: string
+interface Player {
+  id: string
+  full_name: string
+  avatar_url?: string
+  elo_rating: number
 }
 
-interface SetScore { set: number; score_a: number; score_b: number }
+interface ScoreBoardProps {
+  playerA: Player
+  playerB: Player
+  currentSet: number
+  scores: { set: number; score_a: number; score_b: number }[]
+  winnerId?: string
+}
 
-export function ScoreBoard({ matchId, playerAName, playerBName, currentUserId, playerAId, playerBId }: ScoreBoardProps) {
-  const supabase = createClient()
-  const isPlayerA = currentUserId === playerAId
-  const isPlayerB = currentUserId === playerBId
-  const canUpdate = isPlayerA || isPlayerB
-
-  const [scores, setScores] = useState<SetScore[]>([])
-  const [currentSet, setCurrentSet] = useState(1)
-  const [isOnline, setIsOnline] = useState(true)
-  const [saving, setSaving] = useState(false)
-
-  // Load initial score and subscribe
-  useEffect(() => {
-    async function loadInitial() {
-      const { data } = await supabase.from('matches').select('scores').eq('id', matchId).single()
-      if (data?.scores) {
-        setScores(data.scores as SetScore[])
-        setCurrentSet(data.scores.length || 1)
-      }
-    }
-    loadInitial()
-
-    const channel = supabase
-      .channel(`match:${matchId}`)
-      .on('postgres_changes', {
-        event: 'UPDATE', 
-        schema: 'public', 
-        table: 'matches', 
-        filter: `id=eq.${matchId}`
-      }, (payload) => {
-        const newScores = (payload.new as any).scores || []
-        setScores(newScores)
-        setCurrentSet(newScores.length || 1)
-      })
-      .subscribe((status) => {
-        setIsOnline(status === 'SUBSCRIBED')
-      })
-
-    return () => { supabase.removeChannel(channel) }
-  }, [matchId, supabase])
-
-  const updateScoreOnServer = async (newScores: SetScore[]) => {
-    setSaving(true)
-    const res = await fetch(`/api/matches/score`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ match_id: matchId, scores: newScores })
-    })
-    setSaving(false)
-    return res.ok
-  }
-
-  const addPoint = async (scoringPlayer: 'A' | 'B') => {
-    if (!canUpdate) return
-
-    const currentSetScore = scores.find(s => s.set === currentSet) || { set: currentSet, score_a: 0, score_b: 0 }
-    const newScores = [...scores.filter(s => s.set !== currentSet)]
-    
-    newScores.push({
-      ...currentSetScore,
-      score_a: scoringPlayer === 'A' ? currentSetScore.score_a + 1 : currentSetScore.score_a,
-      score_b: scoringPlayer === 'B' ? currentSetScore.score_b + 1 : currentSetScore.score_b,
-    })
-    
-    newScores.sort((a, b) => a.set - b.set)
-    setScores(newScores) // Optimistic UI
-    await updateScoreOnServer(newScores)
-  }
-
-  const nextSet = async () => {
-    if (!canUpdate) return
-    const newSetNum = currentSet + 1
-    const newScores = [...scores, { set: newSetNum, score_a: 0, score_b: 0 }]
-    setScores(newScores)
-    setCurrentSet(newSetNum)
-    await updateScoreOnServer(newScores)
-  }
-
-  const currentSetScore = scores.find(s => s.set === currentSet) || { score_a: 0, score_b: 0 }
+export function ScoreBoard({ playerA, playerB, currentSet, scores, winnerId }: ScoreBoardProps) {
+  // Aggregate sets won
+  let setsWonA = 0
+  let setsWonB = 0
   
-  // Hitung jumlah set yang dimenangkan
-  const setsA = scores.filter(s => s.score_a > s.score_b).length
-  const setsB = scores.filter(s => s.score_b > s.score_a).length
+  scores.forEach((s) => {
+    // Assuming a set is won when score reaches 21 (and difference >= 2), just basic calculation for display
+    if (s.score_a > s.score_b && s.score_a >= 21) setsWonA++
+    if (s.score_b > s.score_a && s.score_b >= 21) setsWonB++
+  })
+
+  // Current active set
+  const activeScore = scores.find(s => s.set === currentSet) || { score_a: 0, score_b: 0 }
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
-      <div className="flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          {isOnline ? <Wifi className="h-4 w-4 text-emerald-500" /> : <WifiOff className="h-4 w-4 text-rose-500" />}
-          <span className={`text-[10px] font-black uppercase tracking-widest ${isOnline ? 'text-emerald-500' : 'text-rose-500'}`}>
-            {isOnline ? 'Live Connection' : 'Offline'}
-          </span>
-        </div>
-        {saving && (
-           <Badge className="bg-indigo-600 animate-pulse text-[10px] font-black uppercase tracking-widest">
-             <Save className="h-3 w-3 mr-1" /> Syncing...
-           </Badge>
-        )}
-      </div>
-
-      <Card className="border-none shadow-2xl bg-indigo-950 text-white rounded-[2.5rem] overflow-hidden">
-        <CardContent className="p-0">
-          {/* Header Match Info */}
-          <div className="bg-white/5 p-6 flex justify-between items-center border-b border-white/10">
-             <div className="flex flex-col items-start">
-                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Pemain A</span>
-                <span className="text-xl font-black truncate max-w-[120px]">{playerAName}</span>
-             </div>
-             <div className="flex flex-col items-center">
-                <Badge variant="outline" className="text-white border-white/20 font-black text-lg px-4 py-1 rounded-full">
-                  {setsA} : {setsB}
-                </Badge>
-                <span className="text-[10px] font-bold text-indigo-300/60 mt-1 uppercase tracking-tighter">Set Stats</span>
-             </div>
-             <div className="flex flex-col items-end">
-                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Pemain B</span>
-                <span className="text-xl font-black truncate max-w-[120px]">{playerBName}</span>
-             </div>
-          </div>
-
-          {/* Main Score Area */}
-          <div className="p-10 flex flex-col items-center gap-6">
-             <div className="flex items-center justify-center gap-10">
-                <div className="flex flex-col items-center gap-4">
-                   <div className={`text-8xl font-black tabular-nums tracking-tighter transition-all duration-300 ${isPlayerA ? 'scale-110 text-white' : 'text-white/40'}`}>
-                      {currentSetScore.score_a}
-                   </div>
-                   <div className="w-2 h-2 bg-indigo-500 rounded-full animate-ping" />
+    <Card className="border-none shadow-2xl bg-slate-900 rounded-[2rem] overflow-hidden relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900 to-emerald-900/50 z-0 opacity-50" />
+      <CardContent className="p-8 relative z-10">
+        <div className="flex justify-between items-center text-center">
+          
+          {/* Player A */}
+          <div className="flex-1 space-y-4">
+            <div className="mx-auto w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-indigo-900/50 relative">
+              {playerA.full_name?.charAt(0)}
+              {winnerId === playerA.id && (
+                <div className="absolute -top-3 -right-3 p-1.5 bg-amber-500 rounded-full text-white animate-bounce shadow-lg">
+                  <Trophy className="h-5 w-5" />
                 </div>
-                
-                <div className="text-4xl font-black text-indigo-500 opacity-50">:</div>
-
-                <div className="flex flex-col items-center gap-4">
-                   <div className={`text-8xl font-black tabular-nums tracking-tighter transition-all duration-300 ${isPlayerB ? 'scale-110 text-white' : 'text-white/40'}`}>
-                      {currentSetScore.score_b}
-                   </div>
-                   <div className="w-2 h-2 bg-indigo-500 rounded-full animate-ping" style={{ animationDelay: '0.5s' }} />
-                </div>
-             </div>
-
-             <div className="bg-indigo-600/20 px-8 py-2 rounded-full border border-indigo-500/30">
-                <span className="text-sm font-black italic tracking-widest text-indigo-300">SET {currentSet}</span>
-             </div>
-          </div>
-
-          {/* History Sets */}
-          {scores.length > 1 && (
-            <div className="bg-black/20 p-4 flex gap-4 justify-center items-center border-t border-white/5">
-               {scores.map(s => (
-                 <div key={s.set} className={`flex flex-col items-center px-3 py-1 rounded-xl border ${s.set === currentSet ? 'bg-indigo-600 border-indigo-400' : 'bg-transparent border-white/10 opacity-30'}`}>
-                    <span className="text-[10px] font-black">{s.score_a}-{s.score_b}</span>
-                 </div>
-               ))}
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <div>
+              <h3 className="text-xl font-black text-white">{playerA.full_name}</h3>
+              <p className="text-xs font-bold text-indigo-400">ELO {playerA.elo_rating}</p>
+            </div>
+            <div className="text-6xl font-black text-white">{activeScore.score_a}</div>
+            <div className="flex justify-center gap-1 text-slate-400 font-bold text-sm">
+               Sets: <span className="text-white ml-2">{setsWonA}</span>
+            </div>
+          </div>
 
-      {/* Control Buttons */}
-      {canUpdate && (
-        <div className="grid gap-4">
-           <div className="grid grid-cols-2 gap-4">
-              <Button 
-                className="h-24 rounded-3xl bg-white text-indigo-900 hover:bg-slate-50 border-none shadow-xl transition-all active:scale-95 group overflow-hidden relative"
-                onClick={() => addPoint('A')}
-              >
-                <div className="absolute top-0 left-0 p-2 opacity-10 group-hover:scale-125 transition-transform"><Trophy className="h-10 w-10" /></div>
-                <div className="flex flex-col items-center z-10">
-                   <span className="text-xs font-black uppercase mb-1">{playerAName}</span>
-                   <span className="text-3xl font-black">+1 POIN</span>
-                </div>
-              </Button>
-              <Button 
-                className="h-24 rounded-3xl bg-white text-indigo-900 hover:bg-slate-50 border-none shadow-xl transition-all active:scale-95 group overflow-hidden relative"
-                onClick={() => addPoint('B')}
-              >
-                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-125 transition-transform"><Trophy className="h-10 w-10" /></div>
-                <div className="flex flex-col items-center z-10">
-                   <span className="text-xs font-black uppercase mb-1">{playerBName}</span>
-                   <span className="text-3xl font-black">+1 POIN</span>
-                </div>
-              </Button>
-           </div>
-           
-           <div className="flex gap-4">
-              <Button 
-                variant="outline" 
-                className="flex-1 h-16 rounded-2xl border-indigo-200 text-indigo-600 font-black tracking-widest hover:bg-indigo-50"
-                onClick={nextSet}
-              >
-                MASUK KE SET BERIKUTNYA
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="h-16 w-16 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50"
-                onClick={() => { if(confirm('Reset skor set ini?')) setScores(scores.map(s => s.set === currentSet ? {...s, score_a: 0, score_b: 0} : s)) }}
-              >
-                <RotateCcw className="h-6 w-6" />
-              </Button>
-           </div>
-        </div>
-      )}
+          {/* VS Divider */}
+          <div className="px-6 flex flex-col items-center gap-4 text-slate-500">
+            <div className="text-xs font-black tracking-widest bg-slate-800 px-3 py-1 rounded-full uppercase">Set {currentSet}</div>
+            <div className="text-3xl font-black italic">VS</div>
+          </div>
 
-      {!canUpdate && (
-        <div className="p-6 bg-slate-900/5 rounded-3xl border border-slate-900/10 text-center animate-pulse">
-           <p className="text-slate-500 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2">
-              <Users className="h-4 w-4" /> Kamu Sedang Menonton Mode Live Spectator
-           </p>
+          {/* Player B */}
+          <div className="flex-1 space-y-4">
+            <div className="mx-auto w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center text-3xl font-black text-white shadow-lg shadow-emerald-900/50 relative">
+              {playerB.full_name?.charAt(0)}
+              {winnerId === playerB.id && (
+                <div className="absolute -top-3 -left-3 p-1.5 bg-amber-500 rounded-full text-white animate-bounce shadow-lg">
+                  <Trophy className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <div>
+              <h3 className="text-xl font-black text-white">{playerB.full_name}</h3>
+              <p className="text-xs font-bold text-emerald-400">ELO {playerB.elo_rating}</p>
+            </div>
+            <div className="text-6xl font-black text-white">{activeScore.score_b}</div>
+            <div className="flex justify-center gap-1 text-slate-400 font-bold text-sm">
+               Sets: <span className="text-white ml-2">{setsWonB}</span>
+            </div>
+          </div>
+
         </div>
-      )}
-    </div>
+
+        {/* History Sets */}
+        <div className="mt-8 pt-6 border-t border-slate-800 flex justify-center gap-6">
+          {scores.map((setObj) => (
+             <div key={setObj.set} className={`flex flex-col items-center gap-1 ${setObj.set === currentSet ? 'opacity-100 scale-110' : 'opacity-50'}`}>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">S{setObj.set}</span>
+                <div className="bg-slate-800 px-3 py-1.5 rounded-lg flex items-center gap-2 font-bold text-sm text-white">
+                   <span className={setObj.score_a > setObj.score_b ? 'text-indigo-400' : ''}>{setObj.score_a}</span>
+                   <span className="text-slate-600">-</span>
+                   <span className={setObj.score_b > setObj.score_a ? 'text-emerald-400' : ''}>{setObj.score_b}</span>
+                </div>
+             </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
