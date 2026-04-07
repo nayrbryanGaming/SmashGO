@@ -12,7 +12,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AvatarUpload } from '@/components/profile/AvatarUpload'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '@/hooks/use-toast'
 import { Loader2, ArrowLeft } from 'lucide-react'
 
 const profileSchema = z.object({

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { UserPlus, User, Mail, Lock, Building, CreditCard, ArrowRight, Loader2 } from 'lucide-react'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 
 export default function RegisterPage() {

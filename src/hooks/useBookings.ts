@@ -125,3 +125,57 @@ export function useCancelBooking() {
     },
   })
 }
+
+export function useAllBookings(filters?: { status?: string[]; venueId?: string }) {
+  const supabase = createClient()
+
+  return useQuery({
+    queryKey: ['bookings', 'all', filters],
+    queryFn: async () => {
+      let q = supabase
+        .from('bookings')
+        .select(`
+          *,
+          courts (
+            name, 
+            venue_id, 
+            venues (name, city)
+          ),
+          users (
+            full_name, 
+            email
+          )
+        `)
+        .order('created_at', { ascending: false })
+
+      if (filters?.status && filters.status.length > 0) {
+        q = q.in('status', filters.status)
+      }
+      if (filters?.venueId) {
+        q = q.eq('courts.venue_id', filters.venueId)
+      }
+
+      const { data, error } = await q
+      if (error) throw error
+      return data ?? []
+    },
+  })
+}
+
+export function useUpdateBookingStatus() {
+  const queryClient = useQueryClient()
+  const supabase = createClient()
+
+  return useMutation({
+    mutationFn: async ({ bookingId, status }: { bookingId: string; status: string }) => {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', bookingId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookings'] })
+    },
+  })
+}

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Zap, Users, MapPin, Calendar, ArrowRight, Loader2, Info, Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { ELOBadge } from '@/components/matchmaking/ELOBadge'
 
 export default function MatchmakingPage() {

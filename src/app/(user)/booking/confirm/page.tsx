@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { ShoppingCart, ShoppingBag, Plus, Minus, CreditCard, ChevronLeft, MapPin, Calendar, Clock, Loader2 } from 'lucide-react'
-import { useToast } from '@/components/ui/use-toast'
+import { useToast } from '@/hooks/use-toast'
 import { formatCurrency } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 

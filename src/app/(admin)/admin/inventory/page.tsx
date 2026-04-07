@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Plus, Package, ShoppingCart, RefreshCw, AlertTriangle, MoreVertical } from 'lucide-react'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '@/hooks/use-toast'
 
 export default function AdminInventoryPage() {
   const supabase = createClient()

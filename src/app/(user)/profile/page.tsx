@@ -11,7 +11,7 @@ import { AchievementBadge } from '@/components/profile/AchievementBadge'
 import { ELOBadge } from '@/components/matchmaking/ELOBadge'
 import { Settings, Edit, LogOut, ChevronRight, Share2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '@/hooks/use-toast'
 
 export default function ProfilePage() {
   const supabase = createClient()

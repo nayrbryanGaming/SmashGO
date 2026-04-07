@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '@/hooks/use-toast'
 
 const matchmakingSchema = z.object({
   match_type: z.enum(['singles', 'doubles', 'mixed_doubles']),

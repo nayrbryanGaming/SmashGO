@@ -2,7 +2,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { generateQRCodeImage } from '@/lib/qrcode'
+import { generateQRCode } from '@/lib/qrcode'
 import Image from 'next/image'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -22,7 +22,7 @@ export function BookingQRTicket({ qrToken, courtName, venueName, date, time }: B
   useEffect(() => {
     async function getQr() {
       try {
-        const url = await generateQRCodeImage(qrToken)
+        const url = await generateQRCode(qrToken)
         setQrUrl(url)
       } catch (err) {
         console.error(err)

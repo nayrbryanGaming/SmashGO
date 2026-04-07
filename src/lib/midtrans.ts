@@ -48,7 +48,6 @@ export async function createMidtransPayment(params: CreatePaymentParams) {
       first_name: params.userName,
       email: params.userEmail,
     },
-    // Aktifkan semua metode pembayaran yang relevan untuk Indonesia
     enabled_payments: [
       'credit_card',
       'mandiri_clickpay',
@@ -56,7 +55,7 @@ export async function createMidtransPayment(params: CreatePaymentParams) {
       'bca_klikbca',
       'bca_klikpay',
       'bri_epay',
-      'echannel',       // Mandiri Bill
+      'echannel',
       'permata_va',
       'bca_va',
       'bni_va',
@@ -75,18 +74,14 @@ export async function createMidtransPayment(params: CreatePaymentParams) {
     },
     expiry: {
       unit: 'hour',
-      duration: 1,  // Token expired dalam 1 jam
+      duration: 1,
     },
   }
 
-  const transaction = await midtransSnap.createTransaction(parameter as any)
-  return { token: transaction.token, redirect_url: (transaction as any).redirect_url, order_id: orderId }
+  const transaction = await midtransSnap.createTransaction(parameter)
+  return { token: transaction.token, redirect_url: transaction.redirect_url, order_id: orderId }
 }
 
-/**
- * Verifikasi signature webhook dari Midtrans untuk keamanan
- * Signature = SHA512(order_id + status_code + gross_amount + server_key)
- */
 export function verifyMidtransSignature(
   orderId: string,
   statusCode: string,

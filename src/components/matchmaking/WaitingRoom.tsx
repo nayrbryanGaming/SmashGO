@@ -1,32 +1,29 @@
-// src/components/matchmaking/WaitingRoom.tsx
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, XCircle, ShieldCheck, Timer } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Loader2, Users, Timer, XCircle, CheckCircle2 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 interface WaitingRoomProps {
   queueId: string
-  userElo: number
 }
 
-export function WaitingRoom({ queueId, userElo }: WaitingRoomProps) {
+export default function WaitingRoom({ queueId }: WaitingRoomProps) {
+  const [status, setStatus] = useState<'searching' | 'matched' | 'confirmed' | 'cancelled' | 'expired'>('searching')
+  const [opponent, setOpponent] = useState<any>(null)
+  const [matchId, setMatchId] = useState<string | null>(null)
+  const [timer, setTimer] = useState(0)
   const supabase = createClient()
   const router = useRouter()
-  const [waitTime, setWaitTime] = useState(0)
-  const [threshold, setThreshold] = useState(150)
-  const [status, setStatus] = useState<'searching' | 'matched' | 'expired' | 'cancelled'>('searching')
-  const [matchId, setMatchId] = useState<string | null>(null)
+  const { toast } = useToast()
 
   useEffect(() => {
-    // Timer: hitung lama menunggu
-    const timer = setInterval(() => setWaitTime(t => t + 1), 1000)
-
-    // Subscribe ke Supabase Realtime
+    // 1. Subscribe to Realtime update for this queue entry
     const channel = supabase
-      .channel(`queue:${queueId}`)
+      .channel(`queue-${queueId}`)
       .on(
         'postgres_changes',
         {
@@ -36,130 +33,132 @@ export function WaitingRoom({ queueId, userElo }: WaitingRoomProps) {
           filter: `id=eq.${queueId}`
         },
         (payload) => {
-          const newRow = payload.new as any
-          
-          if (newRow.current_elo_threshold !== threshold) {
-            setThreshold(newRow.current_elo_threshold)
+          const newData = payload.new as any
+          setStatus(newData.status)
+          if (newData.status === 'matched') {
+            setMatchId(newData.match_id)
+            fetchOpponentData(newData.matched_with)
           }
-          
-          if (newRow.status === 'matched') {
-            setStatus('matched')
-            setMatchId(newRow.match_id)
-            // Redirect ke halaman konfirmasi match
-            setTimeout(() => router.push(`/match/${newRow.match_id}`), 1500)
-          }
-          
-          if (newRow.status === 'expired') setStatus('expired')
-          if (newRow.status === 'cancelled') setStatus('cancelled')
         }
       )
       .subscribe()
 
-    // Backup Polling
-    const pollInterval = setInterval(async () => {
-      const { data } = await supabase
-        .from('matchmaking_queue')
-        .select('status, match_id, current_elo_threshold')
-        .eq('id', queueId)
-        .single()
-
-      if (data?.status === 'matched' && data.match_id) {
-        clearInterval(pollInterval)
-        router.push(`/match/${data.match_id}`)
-      }
-    }, 5000)
+    // 2. Timer
+    const interval = setInterval(() => {
+      setTimer(prev => prev + 1)
+    }, 1000)
 
     return () => {
-      clearInterval(timer)
-      clearInterval(pollInterval)
       supabase.removeChannel(channel)
+      clearInterval(interval)
     }
-  }, [queueId, router, threshold, supabase])
+  }, [queueId])
 
-  const formatWaitTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-    const s = seconds % 60
-    return `${m}:${s.toString().padStart(2, '0')}`
-  }
-
-  const cancelSearch = async () => {
-    const res = await fetch('/api/matchmaking/cancel', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ queue_id: queueId })
+  const fetchOpponentData = async (opponentId: string) => {
+    const { data } = await supabase
+      .from('users')
+      .select('full_name, avatar_url, elo_rating')
+      .eq('id', opponentId)
+      .single()
+    setOpponent(data)
+    toast({
+      title: 'Lawan Ditemukan!',
+      description: `Kamu akan bertanding melawan ${data?.full_name}`,
     })
-    if (res.ok) router.push('/matchmaking')
   }
 
-  if (status === 'matched') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 p-8 animate-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center text-5xl shadow-2xl shadow-emerald-200 animate-bounce">
-          🎉
-        </div>
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-black text-slate-900">Lawan Ditemukan!</h2>
-          <p className="text-slate-500 font-medium italic">Mempersiapkan lapangan untukmu...</p>
-        </div>
-        <div className="flex items-center gap-2 text-emerald-600 font-bold bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100">
-           <Loader2 className="h-4 w-4 animate-spin" /> Redirecting...
-        </div>
-      </div>
-    )
+  const handleCancel = async () => {
+    const { error } = await supabase
+      .from('matchmaking_queue')
+      .update({ status: 'cancelled' })
+      .eq('id', queueId)
+    
+    if (!error) {
+      router.push('/matchmaking')
+    }
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] gap-8 p-8 max-w-lg mx-auto overflow-hidden">
-      {/* Visual Animation */}
-      <div className="relative w-48 h-48 flex items-center justify-center">
-         <div className="absolute inset-0 border-[3px] border-indigo-600/10 rounded-full animate-[ping_3s_linear_infinite]" />
-         <div className="absolute inset-4 border-[3px] border-indigo-600/20 rounded-full animate-[ping_2s_linear_infinite]" />
-         <div className="absolute inset-8 border-[3px] border-indigo-600/30 rounded-full animate-[ping_1.5s_linear_infinite]" />
-         <div className="w-24 h-24 bg-indigo-600 rounded-3xl shadow-2xl shadow-indigo-200 flex items-center justify-center z-10 rotate-12 animate-pulse">
-            <span className="text-4xl">🏸</span>
-         </div>
-      </div>
-
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Mencari Lawan Seimbang...</h2>
-        <div className="flex items-center justify-center gap-2 text-slate-400 font-bold tracking-widest text-sm uppercase">
-          <Timer className="h-4 w-4" /> {formatWaitTime(waitTime)}
-        </div>
-      </div>
-
-      <div className="w-full space-y-4">
-        <div className="bg-white border border-slate-100 shadow-xl rounded-3xl p-6 space-y-4">
-          <div className="flex justify-between items-center pb-4 border-b border-slate-50">
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">ELO Kamu</span>
-            <Badge className="bg-indigo-600 text-white font-black px-4 py-1 rounded-full text-lg shadow-lg shadow-indigo-100">{userElo}</Badge>
+    <div className="flex flex-col items-center justify-center space-y-8 py-12">
+      <Card className="w-full max-w-md bg-slate-900 border-slate-800 text-white overflow-hidden relative">
+        <div className="absolute top-0 left-0 w-full h-1 bg-indigo-600 animate-pulse" />
+        
+        <CardHeader className="text-center pb-2">
+          <div className="mx-auto w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mb-4 ring-4 ring-indigo-600/10">
+            {status === 'searching' ? (
+              <Loader2 className="h-8 w-8 text-indigo-400 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-8 w-8 text-green-400" />
+            )}
           </div>
-          
-          <div className="space-y-3">
-             <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500 font-medium">Rentang Pencarian</span>
-                <span className="font-black text-slate-900">{userElo - threshold} – {userElo + threshold}</span>
-             </div>
-             
-             <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                <div className="bg-indigo-500 h-full rounded-full transition-all duration-1000 w-[60%] animate-pulse" />
-             </div>
-             
-             <div className="flex items-start gap-2 bg-amber-50 p-3 rounded-2xl border border-amber-100">
-                <ShieldCheck className="h-4 w-4 text-amber-600 mt-0.5" />
-                <p className="text-[10px] text-amber-800 font-bold leading-tight uppercase tracking-tight">
-                  Sistem akan otomatis memperluas jangkauan ELO setiap 2 menit agar kamu cepat mendapatkan lawan.
-                </p>
-             </div>
-          </div>
-        </div>
+          <CardTitle className="text-2xl font-black italic tracking-tighter uppercase">
+            {status === 'searching' ? 'MENCARI LAWAN...' : 'LAWAN DITEMUKAN!'}
+          </CardTitle>
+          <CardDescription className="text-slate-400 font-medium">
+            {status === 'searching' 
+              ? 'Sistem sedang mencarikan lawan yang seimbang untukmu.' 
+              : 'Harap konfirmasi pertandinganmu segera.'}
+          </CardDescription>
+        </CardHeader>
 
-        <Button 
-          variant="ghost" 
-          onClick={cancelSearch} 
-          className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50 font-black tracking-widest text-xs h-12 rounded-2xl uppercase transition-all flex items-center gap-2"
-        >
-          <XCircle className="h-4 w-4" /> Batalkan Antrian
-        </Button>
+        <CardContent className="space-y-6 pt-4">
+          <div className="flex justify-around items-center py-4 bg-slate-950/50 rounded-2xl border border-slate-800">
+            <div className="text-center space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Waktu Tunggu</p>
+              <p className="text-xl font-mono font-bold text-indigo-400 flex items-center justify-center gap-2">
+                <Timer className="h-4 w-4" /> {formatTime(timer)}
+              </p>
+            </div>
+            <div className="w-px h-8 bg-slate-800" />
+            <div className="text-center space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pemain Aktif</p>
+              <p className="text-xl font-mono font-bold text-indigo-400 flex items-center justify-center gap-2">
+                <Users className="h-4 w-4" /> 24
+              </p>
+            </div>
+          </div>
+
+          {status === 'matched' && opponent && (
+            <div className="animate-in fade-in zoom-in duration-500">
+               <div className="p-4 bg-indigo-600/10 rounded-2xl border border-indigo-600/20 flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center font-bold text-xl uppercase">
+                     {opponent.full_name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white uppercase tracking-tight">{opponent.full_name}</p>
+                    <p className="text-xs text-indigo-400 font-bold tracking-widest uppercase">ELO: {opponent.elo_rating}</p>
+                  </div>
+               </div>
+               <Button 
+                onClick={() => router.push(`/match/${matchId}`)}
+                className="w-full mt-6 bg-green-600 hover:bg-green-700 font-black italic uppercase italic tracking-widest py-6"
+               >
+                 MASUK KE PERTANDINGAN
+               </Button>
+            </div>
+          )}
+
+          {status === 'searching' && (
+            <Button 
+              variant="destructive" 
+              onClick={handleCancel}
+              className="w-full bg-red-600/10 text-red-500 border border-red-600/20 hover:bg-red-600 hover:text-white font-bold h-12"
+            >
+              BATALKAN PENCARIAN
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="text-center">
+         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-2">Tips Pro SmashGo</p>
+         <p className="text-xs text-slate-400 max-w-xs mx-auto italic">"Fokus pada footwork dan penempatan bola daripada sekadar power smash."</p>
       </div>
     </div>
   )

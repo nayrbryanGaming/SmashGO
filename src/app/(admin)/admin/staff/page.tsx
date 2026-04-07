@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Plus, UserPlus, Shield, UserX, Mail, Phone, MoreVertical } from 'lucide-react'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from '@/hooks/use-toast'
 
 export default function AdminStaffPage() {
   const supabase = createClient()
