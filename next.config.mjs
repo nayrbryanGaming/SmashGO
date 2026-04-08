@@ -22,6 +22,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  reactStrictMode: true,
+  poweredByHeader: false,
 };
 
 export default withPWA(nextConfig);
