@@ -22,7 +22,7 @@ export default function CheckinPage() {
       const res = await fetch('/api/bookings/checkin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qr_code: data })
+        body: JSON.stringify({ qr_token: data })
       })
 
       const json = await res.json()

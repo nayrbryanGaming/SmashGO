@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:smashgo/features/matchmaking/matchmaking_service.dart';
+import 'package:smashgo/features/profile/profile_service.dart';
 
 class MatchmakingPage extends StatefulWidget {
   const MatchmakingPage({super.key});
@@ -13,10 +13,34 @@ class MatchmakingPage extends StatefulWidget {
 
 class _MatchmakingPageState extends State<MatchmakingPage> {
   final _matchmakingService = MatchmakingService();
+  final _profileService = ProfileService();
   bool _isSearching = false;
   String? _currentQueueId;
+  Map<String, dynamic>? _profile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final profile = await _profileService.getUserProfile();
+      setState(() => _profile = profile);
+    } catch (e) {
+      // Handle error
+    }
+  }
 
   void _toggleSearch() async {
+    if (_profile == null) {
+       ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Memuat data profil...'), backgroundColor: Colors.orange),
+      );
+      return;
+    }
+
     if (_isSearching) {
       if (_currentQueueId != null) {
         await _matchmakingService.cancelQueue(_currentQueueId!);
@@ -28,12 +52,15 @@ class _MatchmakingPageState extends State<MatchmakingPage> {
     } else {
       setState(() => _isSearching = true);
       try {
-        // Mock data for elo and skill level (should come from profile)
-        await _matchmakingService.joinQueue(
-          elo: 1200, 
-          skillLevel: 'menengah', 
+        final elo = _profile!['elo_rating'] ?? 1000;
+        final skill = _profile!['skill_level'] ?? 'pemula';
+        
+        final queueId = await _matchmakingService.joinQueue(
+          elo: elo as int, 
+          skillLevel: skill as String, 
           matchType: 'singles'
         );
+        setState(() => _currentQueueId = queueId);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -109,12 +136,12 @@ class _MatchmakingPageState extends State<MatchmakingPage> {
               ),
               const SizedBox(height: 64),
               
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _InfoTag(LucideIcons.zap, 'ELO 1200'),
-                  SizedBox(width: 12),
-                  _InfoTag(LucideIcons.shield, 'MENENGAH'),
+                   _InfoTag(LucideIcons.zap, 'ELO ${_profile?['elo_rating'] ?? 1000}'),
+                  const SizedBox(width: 12),
+                   _InfoTag(LucideIcons.shield, (_profile?['skill_level'] ?? 'PEMULA').toString().toUpperCase()),
                 ],
               ),
               const SizedBox(height: 64),

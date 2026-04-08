@@ -1,180 +1,125 @@
-// mobile/lib/features/auth/login_page.dart
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:smashgo/features/auth/auth_service.dart';
-import 'package:smashgo/features/dashboard/dashboard_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:smashgo/core/providers/auth_provider.dart';
+import 'package:smashgo/features/booking/presentation/booking_screen.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
-  bool _isLoading = false;
-
-  Future<void> _handleLogin() async {
-    setState(() => _isLoading = true);
-    try {
-      await _authService.signIn(_emailController.text, _passwordController.text);
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const DashboardPage()),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login Gagal: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
+    ref.listen(authProvider, (previous, next) {
+      if (next is AsyncData && next.value != null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const BookingScreen()),
+        );
+      }
+      if (next is AsyncError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login Gagal: ${next.error}')),
+        );
+      }
+    });
+
     return Scaffold(
-      body: Stack(
-        children: [
-          // Background Glow
-          Positioned(
-            top: -100,
-            left: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF4F46E5).withOpacity(0.15),
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF0F172A), Color(0xFF020617)],
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Hero(
+              tag: 'logo',
+              child: Icon(Icons.sports_tennis, size: 80, color: Color(0xFF4F46E5)),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'SMASHGO',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                fontStyle: FontStyle.italic,
+                letterSpacing: -1,
               ),
             ),
-          ),
-          
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Logo
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF4F46E5),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF4F46E5).withOpacity(0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(LucideIcons.zap, color: Colors.white, size: 32),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'SMASHGO LOGIN',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic,
-                      letterSpacing: -1,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Masuk untuk mulai bermain dan mengelola lapangan.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
-                  ),
-                  const SizedBox(height: 48),
-                  
-                  // Form
-                  const Text(
-                    'EMAIL PERUSAHAAN',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF64748B),
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(LucideIcons.mail, size: 18),
-                      hintText: 'name@company.com',
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  const Text(
-                    'PASSWORD',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF64748B),
-                      letterSpacing: 2,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      prefixIcon: Icon(LucideIcons.lock, size: 18),
-                      hintText: '••••••••',
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    child: _isLoading 
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('MULAI BERMAIN'),
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Belum punya akun? ',
-                        style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                      ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text(
-                          'Daftar Sekarang',
-                          style: TextStyle(
-                            color: Color(0xFF4F46E5),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            const Text(
+              'PLATFORM BOOKING LAPANGAN TERDEPAN',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.white24,
+                letterSpacing: 2,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 48),
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: 'EMAIL PEGAWAI',
+                prefixIcon: Icon(Icons.email_outlined, size: 20),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _passwordController,
+              obscureText: _isObscure,
+              decoration: InputDecoration(
+                labelText: 'PASSWORD',
+                prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                suffixIcon: IconButton(
+                  icon: Icon(_isObscure ? Icons.visibility_off : Icons.visibility, size: 20),
+                  onPressed: () => setState(() => _isObscure = !_isObscure),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: authState is AsyncLoading
+                  ? null
+                  : () {
+                      ref.read(authProvider.notifier).login(
+                            _emailController.text,
+                            _passwordController.text,
+                          );
+                    },
+              child: authState is AsyncLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('MASUK SEKARANG'),
+            ),
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                'LUPA PASSWORD?',
+                style: TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

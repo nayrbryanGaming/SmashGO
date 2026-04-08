@@ -90,9 +90,23 @@ export function verifyMidtransSignature(
 ): boolean {
   const crypto = require('crypto')
   const serverKey = process.env.MIDTRANS_SERVER_KEY!
-  const hash = crypto
-    .createHash('sha512')
-    .update(orderId + statusCode + grossAmount + serverKey)
-    .digest('hex')
+  const data = orderId + statusCode + grossAmount + serverKey
+  const hash = crypto.createHash('sha512').update(data).digest('hex')
   return hash === signatureKey
+}
+
+export function getPaymentStatus(notification: any): 'pending' | 'success' | 'failed' | 'expired' | 'refunded' {
+  const status = notification.transaction_status
+  const fraud = notification.fraud_status
+
+  if (status === 'capture') {
+    if (fraud === 'challenge') return 'pending'
+    return 'success'
+  }
+  if (status === 'settlement') return 'success'
+  if (status === 'deny' || status === 'expire' || status === 'cancel') return 'failed'
+  if (status === 'pending') return 'pending'
+  if (status === 'refund') return 'refunded'
+  
+  return 'pending'
 }

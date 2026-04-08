@@ -9,9 +9,10 @@ import { useToast } from '@/hooks/use-toast'
 
 interface WaitingRoomProps {
   queueId: string
+  userElo?: number
 }
 
-export default function WaitingRoom({ queueId }: WaitingRoomProps) {
+export function WaitingRoom({ queueId, userElo }: WaitingRoomProps) {
   const [status, setStatus] = useState<'searching' | 'matched' | 'confirmed' | 'cancelled' | 'expired'>('searching')
   const [opponent, setOpponent] = useState<any>(null)
   const [matchId, setMatchId] = useState<string | null>(null)
