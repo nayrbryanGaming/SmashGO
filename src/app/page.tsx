@@ -26,7 +26,7 @@ export default function LandingPage() {
         </div>
         <div className="hidden md:flex items-center gap-8">
            <a href="#features" className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Fitur</a>
-           <a href="#download" className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Download</a>
+           <Link href="/download" className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">Download</Link>
            <Link href="/login">
               <Button variant="ghost" className="text-xs font-black uppercase tracking-widest text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10">LOGIN</Button>
            </Link>
@@ -77,11 +77,11 @@ export default function LandingPage() {
               Dashboard Player <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
-          <a href="#download">
+          <Link href="/download">
             <Button size="lg" variant="outline" className="bg-slate-900/50 border-slate-800 text-white border-2 text-sm font-black italic uppercase tracking-widest px-12 h-16 rounded-2xl shadow-xl backdrop-blur-xl transition-all hover:bg-slate-800 hover:scale-[1.05] group">
               Download Full APK <Download className="h-5 w-5 ml-2 group-hover:translate-y-1 transition-transform" />
             </Button>
-          </a>
+          </Link>
         </motion.div>
 
         {/* Mascot */}

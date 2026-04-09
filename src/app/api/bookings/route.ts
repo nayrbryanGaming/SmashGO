@@ -95,5 +95,45 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: bookingError.message }, { status: 500 })
   }
 
-  return NextResponse.json(booking)
+  // 4. Create Midtrans Payment Automatically
+  try {
+    const { createMidtransPayment } = await import('@/lib/midtrans')
+    
+    // Generate Order ID for Midtrans
+    const midtrans = await createMidtransPayment({
+      bookingId: booking.id,
+      userId: user.id,
+      userEmail: user.email!,
+      userName: user.user_metadata?.full_name || 'Pelanggan SmashGo',
+      amount: total_price,
+      courtName: court.name,
+      bookingDate,
+      startTime: start_time,
+      duration: duration_hours
+    })
+
+    // Insert into payments table
+    await supabase.from('payments').insert({
+      booking_id: booking.id,
+      user_id: user.id,
+      midtrans_order_id: midtrans.order_id,
+      snap_token: midtrans.token,
+      payment_url: midtrans.redirect_url,
+      amount: total_price,
+      status: 'pending'
+    })
+
+    return NextResponse.json({
+      ...booking,
+      payment: {
+        token: midtrans.token,
+        redirect_url: midtrans.redirect_url,
+        order_id: midtrans.order_id
+      }
+    })
+  } catch (paymentError: any) {
+    console.error('Payment creation error:', paymentError)
+    // Return booking even if payment fails to be created (user can retry payment later)
+    return NextResponse.json(booking)
+  }
 }

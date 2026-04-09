@@ -5,7 +5,7 @@ const withPWA = withPWAInit({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: true, // Emergency disable to fix build OOM
+  disable: true, // process.env.NODE_ENV === 'development',
 });
 
 const nextConfig = {
@@ -15,12 +15,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
   reactStrictMode: true,
   poweredByHeader: false,

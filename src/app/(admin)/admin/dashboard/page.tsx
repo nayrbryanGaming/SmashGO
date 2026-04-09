@@ -8,6 +8,7 @@ import { Calendar, DollarSign, Users, LayoutDashboard, QrCode, ArrowUpRight, Arr
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState({
@@ -19,11 +20,30 @@ export default function AdminDashboardPage() {
   const [recentBookings, setRecentBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchAdminData() {
       setLoading(true)
       const today = new Date().toISOString().split('T')[0]
+
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (!authUser) {
+        router.push('/login')
+        return
+      }
+
+      // Fetch profile and check role
+      const { data: profile } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+      
+      if (!profile || (profile.role !== 'admin' && profile.role !== 'superadmin')) {
+        router.push('/')
+        return
+      }
 
       // Fetch Revenue Today
       const { data: payments } = await supabase
@@ -47,11 +67,24 @@ export default function AdminDashboardPage() {
         .order('created_at', { ascending: false })
         .limit(5)
 
+      // Fetch Active Users (last 24h)
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      const { count: activeUsersCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_seen_at', oneDayAgo)
+
+      // Fetch Inventory Alerts
+      const { count: lowStockCount } = await supabase
+        .from('inventory')
+        .select('*', { count: 'exact', head: true })
+        .lte('stock_quantity', 5) // Simple threshold for demo refinement
+
       setStats({
         revenueToday: totalRev,
         bookingsToday: bookingCount || 0,
-        activeUsers: 142, // Mock for demo
-        inventoryAlerts: 3 // Mock for demo
+        activeUsers: activeUsersCount || 0,
+        inventoryAlerts: lowStockCount || 0
       })
       setRecentBookings(recent || [])
       setLoading(false)
