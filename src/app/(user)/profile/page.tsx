@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { PlayerStats } from '@/components/profile/PlayerStats'
 import { AchievementBadge } from '@/components/profile/AchievementBadge'
 import { ELOBadge } from '@/components/matchmaking/ELOBadge'
-import { Settings, Edit, LogOut, ChevronRight, Share2 } from 'lucide-react'
+import { Settings, Edit, LogOut, ChevronRight, Share2, Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from '@/hooks/use-toast'
 

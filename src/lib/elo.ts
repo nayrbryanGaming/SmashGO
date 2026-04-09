@@ -103,3 +103,17 @@ export function eloToSkillLevel(elo: number): string {
   if (elo < 2000) return 'mahir'
   return 'master'
 }
+/**
+ * Tentukan tier loyalty berdasarkan total poin
+ */
+export function getLoyaltyTier(points: number): {
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum'
+  label: string
+  nextTierPoints: number | null
+  progress: number  // 0-100
+} {
+  if (points >= 5000) return { tier: 'platinum', label: 'Platinum', nextTierPoints: null, progress: 100 }
+  if (points >= 2000) return { tier: 'gold',     label: 'Gold',     nextTierPoints: 5000, progress: Math.round(((points - 2000) / 3000) * 100) }
+  if (points >= 500)  return { tier: 'silver',   label: 'Silver',   nextTierPoints: 2000, progress: Math.round(((points - 500)  / 1500) * 100) }
+  return                     { tier: 'bronze',   label: 'Bronze',   nextTierPoints: 500,  progress: Math.round((points / 500) * 100) }
+}

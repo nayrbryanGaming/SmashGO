@@ -8,3 +8,5 @@ export function LoadingSpinner({ label = 'Memuat...' }: { label?: string }) {
     </div>
   )
 }
+
+export default LoadingSpinner

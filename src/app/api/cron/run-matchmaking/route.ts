@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   //   return new Response('Unauthorized', { status: 401 });
   // }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   try {
     // 1. Get all active 'searching' entries ordered by oldest first

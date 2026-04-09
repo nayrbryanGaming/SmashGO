@@ -1,10 +1,11 @@
 'use client'
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Trophy, Medal, Rocket, Users, Target, ArrowUpRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Trophy, Medal, Rocket, Users, Target, ArrowUpRight, Star } from 'lucide-react'
 import { eloToSkillLevel } from '@/lib/elo'
 import LoadingSpinner from '@/components/shared/LoadingSpinner'
 

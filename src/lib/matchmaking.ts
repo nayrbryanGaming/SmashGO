@@ -85,20 +85,42 @@ export async function findMatch(queueEntryId: string): Promise<{
     return { found: false, message: 'Gagal membuat match' }
   }
 
-  // 5. Update status queue
-  await Promise.all([
-    supabase.from('matchmaking_queue').update({
+  // 5. Update status queue (Optimistic Locking)
+  const { data: confirmA, error: errA } = await supabase
+    .from('matchmaking_queue')
+    .update({
       status: 'matched',
       matched_with: opponent.user_id,
       match_id: newMatch.id
-    }).eq('id', queueEntryId),
-    
-    supabase.from('matchmaking_queue').update({
+    })
+    .eq('id', queueEntryId)
+    .eq('status', 'searching')
+    .select()
+
+  if (errA || !confirmA || confirmA.length === 0) {
+    // Requester was already matched by someone else or cancelled
+    await supabase.from('matches').delete().eq('id', newMatch.id)
+    return { found: false, message: 'Antrian sudah tidak valid, gagal melakukan matching' }
+  }
+
+  const { data: confirmB, error: errB } = await supabase
+    .from('matchmaking_queue')
+    .update({
       status: 'matched',
       matched_with: requester.user_id,
       match_id: newMatch.id
-    }).eq('id', opponent.id)
-  ])
+    })
+    .eq('id', opponent.id)
+    .eq('status', 'searching')
+    .select()
+
+  if (errB || !confirmB || confirmB.length === 0) {
+    // Opponent was already matched by someone else
+    // Rollback A
+    await supabase.from('matchmaking_queue').update({ status: 'searching', matched_with: null, match_id: null }).eq('id', queueEntryId)
+    await supabase.from('matches').delete().eq('id', newMatch.id)
+    return { found: false, message: 'Lawan sudah terburu-buru diambil orang lain, mencari lagi...' }
+  }
 
   // 6. Buat notifikasi (Trigger FCM akan dihandle via edge function/webhook)
   await supabase.from('notifications').insert([
@@ -124,4 +146,51 @@ export async function findMatch(queueEntryId: string): Promise<{
     opponentId: opponent.user_id,
     message: 'Match ditemukan!'
   }
+}
+
+/**
+ * Update ELO kedua pemain setelah match selesai
+ * Dipanggil dari API PATCH /api/matches/score setelah match completed
+ */
+export async function updateEloAfterMatch(matchId: string): Promise<void> {
+  const { data: match } = await supabase
+    .from('matches')
+    .select('*, player_a:users!matches_player_a_id_fkey(id, elo_rating, total_matches, loyalty_points, total_wins), player_b:users!matches_player_b_id_fkey(id, elo_rating, total_matches, loyalty_points, total_wins)')
+    .eq('id', matchId)
+    .eq('status', 'completed')
+    .single()
+
+  if (!match || !match.winner_id) return
+
+  const { calculateNewElo, ELO_CONFIG: cfg } = await import('./elo')
+
+  const isAWinner = match.winner_id === match.player_a_id
+  const result = calculateNewElo(
+    { userId: match.player_a_id, elo: match.player_a_elo_before!, totalMatches: match.player_a.total_matches },
+    { userId: match.player_b_id, elo: match.player_b_elo_before!, totalMatches: match.player_b.total_matches },
+    isAWinner ? 'A' : (match.winner_id === 'DRAW' ? 'DRAW' : 'B')
+  )
+
+  // Update ELO kedua pemain
+  await Promise.all([
+    supabase.from('users').update({
+      elo_rating: result.playerANewElo,
+      total_matches: match.player_a.total_matches + 1,
+      total_wins: isAWinner ? match.player_a.total_wins + 1 : match.player_a.total_wins,
+      loyalty_points: match.player_a.loyalty_points + (isAWinner ? cfg.POINTS_WIN : cfg.POINTS_LOSE)
+    }).eq('id', match.player_a_id),
+    
+    supabase.from('users').update({
+      elo_rating: result.playerBNewElo,
+      total_matches: match.player_b.total_matches + 1,
+      total_wins: !isAWinner && match.winner_id !== 'DRAW' ? match.player_b.total_wins + 1 : match.player_b.total_wins,
+      loyalty_points: match.player_b.loyalty_points + (match.winner_id === match.player_b_id ? cfg.POINTS_WIN : cfg.POINTS_LOSE)
+    }).eq('id', match.player_b_id),
+
+    // Update match dengan ELO after
+    supabase.from('matches').update({
+      player_a_elo_after: result.playerANewElo,
+      player_b_elo_after: result.playerBNewElo
+    }).eq('id', matchId)
+  ])
 }

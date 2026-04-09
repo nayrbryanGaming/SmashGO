@@ -1,6 +1,6 @@
 // src/app/(user)/payment/[bookingId]/page.tsx
 'use client'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
@@ -8,7 +8,8 @@ import { CreditCard, Wallet, Smartphone, ShieldCheck } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 
-export default function PaymentPage({ params }: { params: { bookingId: string } }) {
+export default function PaymentPage({ params }: { params: Promise<{ bookingId: string }> }) {
+  const { bookingId } = React.use(params)
   const [booking, setBooking] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
@@ -19,7 +20,7 @@ export default function PaymentPage({ params }: { params: { bookingId: string } 
       const { data } = await supabase
         .from('bookings')
         .select('*, courts(name, venues(name))')
-        .eq('id', params.bookingId)
+        .eq('id', bookingId)
         .single()
       
       if (data) {
@@ -35,7 +36,7 @@ export default function PaymentPage({ params }: { params: { bookingId: string } 
     const res = await fetch('/api/payments/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bookingId: params.bookingId })
+      body: JSON.stringify({ bookingId })
     })
     const { snapToken } = await res.json()
 

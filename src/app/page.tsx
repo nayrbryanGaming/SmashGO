@@ -201,6 +201,6 @@ function FeatureCard({ icon: Icon, title, color }: any) {
   )
 }
 
-function cn(...inputs: any) {
+function cn(...inputs: (string | boolean | undefined)[]) {
   return inputs.filter(Boolean).join(" ")
 }

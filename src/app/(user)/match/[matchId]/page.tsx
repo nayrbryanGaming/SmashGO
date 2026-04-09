@@ -5,8 +5,9 @@ import { redirect } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { ELOBadge } from '@/components/matchmaking/ELOBadge'
 
-export default async function MatchPage({ params }: { params: { matchId: string } }) {
-  const supabase = createClient()
+export default async function MatchPage({ params }: { params: Promise<{ matchId: string }> }) {
+  const { matchId } = await params
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) redirect('/login')
@@ -14,7 +15,7 @@ export default async function MatchPage({ params }: { params: { matchId: string 
   const { data: match } = await supabase
     .from('matches')
     .select('*, player_a:users!matches_player_a_id_fkey(*), player_b:users!matches_player_b_id_fkey(*)')
-    .eq('id', params.matchId)
+    .eq('id', matchId)
     .single()
 
   if (!match) return <div className="p-8 text-center">Match tidak ditemukan.</div>

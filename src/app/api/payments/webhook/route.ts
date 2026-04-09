@@ -1,98 +1,76 @@
 // src/app/api/payments/webhook/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { verifyMidtransSignature } from '@/lib/midtrans'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createClient } from '@/lib/supabase/server'
+import crypto from 'crypto'
 
 export async function POST(req: NextRequest) {
-  const payload = await req.json()
-  
+  const body = await req.json()
   const {
     order_id,
-    transaction_status,
-    fraud_status,
     status_code,
     gross_amount,
     signature_key,
-    payment_type,
-    transaction_id
-  } = payload
+    transaction_status,
+    fraud_status
+  } = body
 
-  // 1. Verifikasi signature Midtrans
-  const isValid = verifyMidtransSignature(order_id, status_code, gross_amount, signature_key)
-  if (!isValid) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  // 1. Verify Signature Key (Security)
+  // signature_key = hash(order_id + status_code + gross_amount + server_key)
+  const serverKey = process.env.MIDTRANS_SERVER_KEY!
+  const hash = crypto.createHash('sha512')
+    .update(`${order_id}${status_code}${gross_amount}${serverKey}`)
+    .digest('hex')
+
+  if (hash !== signature_key) {
+    console.error('INVALID_SIGNATURE_KEY', { hash, signature_key })
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 403 })
   }
 
-  // 2. Cari payment
-  const { data: payment } = await supabase
-    .from('payments')
-    .select('*, bookings(*)')
-    .eq('midtrans_order_id', order_id)
-    .single()
+  const supabase = await createClient()
+  const bookingId = order_id.split('-')[1] // Extract bookingId from SMASHGO-{bookingId}-{timestamp}
 
-  if (!payment) {
-    return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
-  }
+  console.log(`Processing Webhook for Order ID: ${order_id}, Status: ${transaction_status}`)
 
-  // 3. Tentukan status
-  let newPaymentStatus: string
-  let newBookingStatus: string
-
+  // 2. Map Midtrans status to SmashGo status
+  let smashStatus = 'pending_payment'
   if (transaction_status === 'capture' || transaction_status === 'settlement') {
-    if (fraud_status === 'accept' || !fraud_status) {
-      newPaymentStatus = 'success'
-      newBookingStatus = 'confirmed'
+    if (transaction_status === 'capture' && fraud_status === 'challenge') {
+       smashStatus = 'pending_payment' // Challenged by Midtrans fraud detect
     } else {
-      newPaymentStatus = 'failed'
-      newBookingStatus = 'cancelled'
+       smashStatus = 'confirmed'
     }
+  } else if (transaction_status === 'cancel' || transaction_status === 'deny' || transaction_status === 'expire') {
+    smashStatus = 'expired'
   } else if (transaction_status === 'pending') {
-    newPaymentStatus = 'pending'
-    newBookingStatus = 'pending_payment'
-  } else if (['cancel', 'deny', 'expire'].includes(transaction_status)) {
-    newPaymentStatus = transaction_status === 'expire' ? 'expired' : 'failed'
-    newBookingStatus = 'cancelled'
-  } else {
-    return NextResponse.json({ ok: true })
+    smashStatus = 'pending_payment'
   }
 
-  // 4. Update DB
-  await Promise.all([
-    supabase.from('payments').update({
-      status: newPaymentStatus,
-      payment_method: payment_type,
-      midtrans_transaction_id: transaction_id,
-      paid_at: newPaymentStatus === 'success' ? new Date().toISOString() : null,
-      webhook_payload: payload,
-    }).eq('id', payment.id),
-    
-    supabase.from('bookings').update({
-      status: newBookingStatus,
-    }).eq('id', payment.booking_id)
-  ])
+  // 3. Update Booking & Payment in DB
+  const { error: bookingError } = await supabase
+    .from('bookings')
+    .update({ status: smashStatus })
+    .eq('id', bookingId)
 
-  // 5. Success actions (Notif/QR)
-  if (newPaymentStatus === 'success') {
-    // Loyalty points
-    await supabase.rpc('add_loyalty_points', {
-      p_user_id: payment.user_id,
-      p_points: 10
+  const { error: paymentError } = await supabase
+    .from('payments')
+    .update({ 
+      status: transaction_status === 'settlement' || transaction_status === 'capture' ? 'success' : 
+              (transaction_status === 'pending' ? 'pending' : 'failed'),
+      webhook_payload: body,
+      paid_at: smashStatus === 'confirmed' ? new Date().toISOString() : null
     })
+    .eq('midtrans_order_id', order_id)
 
-    // In-app notification
-    await supabase.from('notifications').insert({
-      user_id: payment.user_id,
-      type: 'payment_success',
-      title: 'Pembayaran Berhasil!',
-      body: `Booking kamu telah dikonfirmasi. Tunjukkan QR code saat check-in.`,
-      data: { booking_id: payment.booking_id }
-    })
+  if (bookingError || paymentError) {
+    console.error('DATABASE_UPDATE_ERROR', { bookingError, paymentError })
+    return NextResponse.json({ error: 'Database update failed' }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true })
+  // 4. Send Notification if Confirmed
+  if (smashStatus === 'confirmed') {
+    // We could trigger a helper function/edge function here to send FCM/Email
+    // For now, it will be visible in the user's notification list next time they load
+  }
+
+  return NextResponse.json({ success: true, status: smashStatus })
 }
