@@ -29,7 +29,13 @@ export default function DashboardPage() {
           .select('*')
           .eq('id', authUser.id)
           .single()
-        setUser(profile)
+      // Fetch Rank
+      const { count: rankCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+        .gt('elo_rating', profile.elo_rating)
+      
+      setUser({ ...profile, rank: (rankCount || 0) + 1 })
 
         // Fetch active bookings
         const { data: bookings } = await supabase
@@ -288,7 +294,7 @@ export default function DashboardPage() {
                <p className="text-sm text-indigo-200/80 font-medium">Buktikan kemampuanmu dan jadilah juara perusahaan!</p>
                <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10">
                   <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-1">POSISI KAMU</p>
-                  <p className="text-3xl font-black tracking-tighter">#42 <span className="text-sm font-bold text-indigo-300">Nasional</span></p>
+                  <p className="text-3xl font-black tracking-tighter">#{user?.rank || '--'} <span className="text-sm font-bold text-indigo-300">Nasional</span></p>
                </div>
                <Link href="/leaderboard" className="block w-full">
                   <Button variant="secondary" className="w-full bg-white text-indigo-900 hover:bg-slate-100 h-12 rounded-2xl font-black text-sm transition-all shadow-xl shadow-black/20">
