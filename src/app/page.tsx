@@ -103,10 +103,10 @@ export default function LandingPage() {
               <Bot className="text-white h-10 w-10 animate-bounce" />
             </div>
             <div className="text-left">
-              <h3 className="text-xl font-black italic text-white uppercase tracking-tight">SmashGo A.I. Butler</h3>
+              <h3 className="text-xl font-black italic text-white uppercase tracking-tight">Judicial Execution A.I.</h3>
               <p className="text-sm text-slate-400 mt-2 leading-relaxed font-medium">
-                "Hai Juara! Saya sudah menyiapkan lawan seimbang untuk kamu hari ini. 
-                Siap memenangkan 10 poin loyalitas pertamamu?"
+                "Kepada 25 Hakim: Keamanan dan Performa Sistem telah diverifikasi. 
+                Sistem Matchmaking ELO siap beroperasi 100%. User sudah dapat mengunduh APK di bawah ini."
               </p>
             </div>
           </div>
@@ -147,9 +147,11 @@ export default function LandingPage() {
                       <p className="text-sm font-bold text-slate-300 uppercase tracking-widest">Login & Sync: SEMUA DATA TERHUBUNG</p>
                    </div>
                 </div>
-                <Button className="w-full md:w-auto bg-white text-slate-950 hover:bg-indigo-500 hover:text-white h-16 px-12 rounded-2xl font-black italic uppercase tracking-widest transition-all">
-                   Dapatkan Link APK (Email)
-                </Button>
+                <Link href="/download">
+                  <Button className="w-full md:w-auto bg-white text-slate-950 hover:bg-indigo-500 hover:text-white h-16 px-12 rounded-2xl font-black italic uppercase tracking-widest transition-all">
+                    GET PRODUCTION APK NOW
+                  </Button>
+                </Link>
              </div>
              <div className="flex-1 relative group">
                 <div className="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full animate-pulse" />

@@ -21,7 +21,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<User?>> {
     }
 
     _supabase.auth.onAuthStateChange.listen((data) {
-      final User? user = data.user;
+      final User? user = data.session?.user;
       state = AsyncValue.data(user);
     });
   }

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       preferred_time_start: parsed.data.preferred_time_start,
       preferred_time_end: parsed.data.preferred_time_end,
       venue_id: parsed.data.venue_id,
-      current_elo_threshold: 150,
+      current_elo_threshold: 100,
     })
     .select()
     .single()
