@@ -1,5 +1,6 @@
 // src/app/page.tsx
 'use client'
+import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Bot, Trophy, Users, Calendar, Zap, Shield, Sparkles, Smartphone, ArrowRight, Download } from 'lucide-react'
@@ -203,6 +204,4 @@ function FeatureCard({ icon: Icon, title, color }: any) {
   )
 }
 
-function cn(...inputs: (string | boolean | undefined)[]) {
-  return inputs.filter(Boolean).join(" ")
-}
+
