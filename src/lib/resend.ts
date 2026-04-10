@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export interface EmailParams {
   to: string
   subject: string
-  template: 'booking_confirmed' | 'payment_failed' | 'otp_verification' | 'match_reminder'
+  template: 'booking_confirmed' | 'payment_failed' | 'otp_verification' | 'match_reminder' | 'booking_reminder'
   data: any
 }
 
@@ -42,6 +42,20 @@ export async function sendEmail({ to, subject, template, data }: EmailParams) {
             <p>Kode OTP kamu adalah:</p>
             <h1 style="font-size: 40px; letter-spacing: 5px; color: #111827;">${data.otp}</h1>
             <p>Kode ini berlaku selama 10 menit. Jangan berikan kode ini kepada siapapun.</p>
+          </div>
+        `
+        break
+      case 'booking_reminder':
+        html = `
+          <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee;">
+            <h2 style="color: #6366f1;">Pengingat Jadwal Main Besok 🏸</h2>
+            <p>Halo, <strong>${data.userName}</strong>!</p>
+            <p>Ini adalah pengingat untuk jadwal mainmu besok di <strong>${data.venueName}</strong> (${data.courtName}).</p>
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Tanggal:</strong> ${data.bookingDate}</p>
+              <p><strong>Waktu:</strong> ${data.startTime}</p>
+            </div>
+            <p>Sampai jumpa di lapangan!</p>
           </div>
         `
         break

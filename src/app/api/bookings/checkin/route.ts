@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
  * API for Admin to check-in user using QR token
  */
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   
   // Verify Admin session
   const { data: { user }, error: authError } = await supabase.auth.getUser()

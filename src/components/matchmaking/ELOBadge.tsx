@@ -8,10 +8,11 @@ import { cn } from '@/lib/utils'
 interface ELOBadgeProps {
   elo: number
   showIcon?: boolean
+  showLabel?: boolean
   className?: string
 }
 
-export function ELOBadge({ elo, showIcon = true, className }: ELOBadgeProps) {
+export function ELOBadge({ elo, showIcon = true, showLabel = true, className }: ELOBadgeProps) {
   const skill = eloToSkillLevel(elo)
   
   const getIcon = () => {
@@ -32,7 +33,7 @@ export function ELOBadge({ elo, showIcon = true, className }: ELOBadgeProps) {
         )}
       >
         {showIcon && <span className="mr-1.5 inline-block">{getIcon()}</span>}
-        {skill.label}
+        {showLabel && skill.label}
       </Badge>
       <span className="text-xs font-black italic text-slate-400">
         ELO {elo}

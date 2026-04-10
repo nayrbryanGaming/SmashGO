@@ -103,7 +103,7 @@ function LeaderboardRow({ player, rank, type }: { player: any, rank: number, typ
               </Badge>
               <span className={`text-[9px] font-bold uppercase ${skill.colorClass}`}>
                 {skill.label}
-              </Badge>
+              </span>
             </div>
           </div>
         </div>

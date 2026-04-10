@@ -11,7 +11,7 @@ const bookingSchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get('user_id')
 
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
       userName: user.user_metadata?.full_name || 'Pelanggan SmashGo',
       amount: total_price,
       courtName: court.name,
-      bookingDate,
+      bookingDate: booking_date,
       startTime: start_time,
       duration: duration_hours
     })

@@ -29,7 +29,7 @@ export default function PaymentPage({ params }: { params: Promise<{ bookingId: s
       setIsLoading(false)
     }
     fetchBooking()
-  }, [params.bookingId, supabase])
+  }, [bookingId, supabase])
 
   const handlePayment = async () => {
     // Generate Midtrans Token via API

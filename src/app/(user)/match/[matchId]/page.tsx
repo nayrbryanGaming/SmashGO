@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Trophy, Users, Timer, ArrowRight, Zap, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 
 export default function MatchDetailPage() {
   const { matchId } = useParams()
