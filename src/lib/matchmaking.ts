@@ -1,6 +1,7 @@
 // src/lib/matchmaking.ts
 import { createClient } from '@supabase/supabase-js'
 import { ELO_CONFIG } from './elo'
+// import { sendMatchFoundNotification } from './fcm' // Assuming this is available or will be
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,7 +17,7 @@ export async function findMatch(queueEntryId: string): Promise<{
   opponentId?: string
   message: string
 }> {
-  // 1. Ambil data user requester
+  // Ambil data user yang sedang request
   const { data: requester, error: reqError } = await supabase
     .from('matchmaking_queue')
     .select('*, users(full_name, fcm_token)')
@@ -25,10 +26,19 @@ export async function findMatch(queueEntryId: string): Promise<{
     .single()
 
   if (reqError || !requester) {
-    return { found: false, message: 'Antrian tidak ditemukan atau sudah matched' }
+    return { found: false, message: 'Entry antrian tidak ditemukan atau sudah tidak aktif' }
   }
 
-  // 2. Query calon lawan
+  // Cek apakah antrian sudah expired
+  if (new Date(requester.expires_at) < new Date()) {
+    await supabase
+      .from('matchmaking_queue')
+      .update({ status: 'expired' })
+      .eq('id', queueEntryId)
+    return { found: false, message: 'Antrian matchmaking sudah kadaluwarsa' }
+  }
+
+  // Query cari lawan yang cocok
   const { data: candidates } = await supabase
     .from('matchmaking_queue')
     .select('*, users(full_name, fcm_token)')
@@ -38,15 +48,18 @@ export async function findMatch(queueEntryId: string): Promise<{
     .gte('user_elo', requester.user_elo - requester.current_elo_threshold)
     .lte('user_elo', requester.user_elo + requester.current_elo_threshold)
     .gt('expires_at', new Date().toISOString())   // Belum expired
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: true })     // Terlama menunggu duluan
 
   if (!candidates || candidates.length === 0) {
-    // Expand threshold jika perlu
+    // Expand threshold jika sudah > 2 menit sejak terakhir expand
     const lastExpand = new Date(requester.threshold_expanded_at)
     const now = new Date()
     const msSinceExpand = now.getTime() - lastExpand.getTime()
 
-    if (msSinceExpand >= ELO_CONFIG.THRESHOLD_EXPANSION_INTERVAL_MS) {
+    if (
+      msSinceExpand >= ELO_CONFIG.THRESHOLD_EXPANSION_INTERVAL_MS &&
+      requester.current_elo_threshold < ELO_CONFIG.MAX_ELO_THRESHOLD
+    ) {
       const newThreshold = Math.min(
         requester.current_elo_threshold + ELO_CONFIG.THRESHOLD_EXPANSION_STEP,
         ELO_CONFIG.MAX_ELO_THRESHOLD
@@ -60,91 +73,84 @@ export async function findMatch(queueEntryId: string): Promise<{
         .eq('id', queueEntryId)
     }
 
-    return { found: false, message: 'Belum ada lawan yang seimbang, masih mencari...' }
+    return { found: false, message: 'Belum ada lawan yang sesuai, masih mencari...' }
   }
 
-  // 3. Ambil kandidat terbaik (terlama menunggu)
-  const opponent = candidates[0]
+  // Filter tambahan: preferensi waktu (jika ada)
+  let bestCandidate = candidates[0]
+  if (requester.preferred_date) {
+    const timeMatches = candidates.filter(c => {
+      if (!c.preferred_date) return true // Fleksibel → bisa kapan saja
+      return c.preferred_date === requester.preferred_date
+    })
+    if (timeMatches.length > 0) {
+      // Sort berdasarkan selisih ELO terkecil
+      bestCandidate = timeMatches.sort((a, b) =>
+        Math.abs(a.user_elo - requester.user_elo) - Math.abs(b.user_elo - requester.user_elo)
+      )[0]
+    }
+  }
 
-  // 4. Buat record match
+  // Buat record match baru
   const { data: newMatch, error: matchError } = await supabase
     .from('matches')
     .insert({
       player_a_id: requester.user_id,
-      player_b_id: opponent.user_id,
+      player_b_id: bestCandidate.user_id,
       match_type: requester.match_type,
       source: 'matchmaking',
       player_a_elo_before: requester.user_elo,
-      player_b_elo_before: opponent.user_elo,
-      status: 'scheduled'
+      player_b_elo_before: bestCandidate.user_elo,
+      status: 'scheduled',
+      scheduled_at: requester.preferred_date
+        ? `${requester.preferred_date}T${requester.preferred_time_start || '08:00'}:00`
+        : new Date(Date.now() + 3600000).toISOString() // Default: 1 jam dari sekarang
     })
     .select()
     .single()
 
   if (matchError || !newMatch) {
-    return { found: false, message: 'Gagal membuat match' }
+    return { found: false, message: 'Gagal membuat match, coba lagi' }
   }
 
-  // 5. Update status queue (Optimistic Locking)
-  const { data: confirmA, error: errA } = await supabase
-    .from('matchmaking_queue')
-    .update({
+  // Update kedua entry di antrian menjadi 'matched'
+  await Promise.all([
+    supabase.from('matchmaking_queue').update({
       status: 'matched',
-      matched_with: opponent.user_id,
+      matched_with: bestCandidate.user_id,
       match_id: newMatch.id
-    })
-    .eq('id', queueEntryId)
-    .eq('status', 'searching')
-    .select()
-
-  if (errA || !confirmA || confirmA.length === 0) {
-    // Requester was already matched by someone else or cancelled
-    await supabase.from('matches').delete().eq('id', newMatch.id)
-    return { found: false, message: 'Antrian sudah tidak valid, gagal melakukan matching' }
-  }
-
-  const { data: confirmB, error: errB } = await supabase
-    .from('matchmaking_queue')
-    .update({
+    }).eq('id', queueEntryId),
+    
+    supabase.from('matchmaking_queue').update({
       status: 'matched',
       matched_with: requester.user_id,
       match_id: newMatch.id
-    })
-    .eq('id', opponent.id)
-    .eq('status', 'searching')
-    .select()
+    }).eq('user_id', bestCandidate.user_id).eq('status', 'searching')
+  ])
 
-  if (errB || !confirmB || confirmB.length === 0) {
-    // Opponent was already matched by someone else
-    // Rollback A
-    await supabase.from('matchmaking_queue').update({ status: 'searching', matched_with: null, match_id: null }).eq('id', queueEntryId)
-    await supabase.from('matches').delete().eq('id', newMatch.id)
-    return { found: false, message: 'Lawan sudah terburu-buru diambil orang lain, mencari lagi...' }
-  }
-
-  // 6. Buat notifikasi (Trigger FCM akan dihandle via edge function/webhook)
-  await supabase.from('notifications').insert([
-    {
+  // Simpan notifikasi ke database (in-app)
+  await Promise.all([
+    supabase.from('notifications').insert({
       user_id: requester.user_id,
       type: 'match_found',
       title: 'Lawan Ditemukan!',
-      body: `Kamu akan bertanding melawan ${opponent.users.full_name}`,
-      data: { match_id: newMatch.id }
-    },
-    {
-      user_id: opponent.user_id,
+      body: `Kamu akan bertanding melawan ${bestCandidate.users?.full_name}. ELO mereka: ${bestCandidate.user_elo}. Konfirmasi sekarang!`,
+      data: { match_id: newMatch.id, opponent_id: bestCandidate.user_id }
+    }),
+    supabase.from('notifications').insert({
+      user_id: bestCandidate.user_id,
       type: 'match_found',
       title: 'Lawan Ditemukan!',
-      body: `Kamu akan bertanding melawan ${requester.users.full_name}`,
-      data: { match_id: newMatch.id }
-    }
+      body: `Kamu akan bertanding melawan ${requester.users?.full_name}. ELO mereka: ${requester.user_elo}. Konfirmasi sekarang!`,
+      data: { match_id: newMatch.id, opponent_id: requester.user_id }
+    })
   ])
 
   return {
     found: true,
     matchId: newMatch.id,
-    opponentId: opponent.user_id,
-    message: 'Match ditemukan!'
+    opponentId: bestCandidate.user_id,
+    message: 'Lawan ditemukan!'
   }
 }
 
@@ -177,14 +183,14 @@ export async function updateEloAfterMatch(matchId: string): Promise<void> {
       elo_rating: result.playerANewElo,
       total_matches: match.player_a.total_matches + 1,
       total_wins: isAWinner ? match.player_a.total_wins + 1 : match.player_a.total_wins,
-      loyalty_points: match.player_a.loyalty_points + (isAWinner ? cfg.POINTS_WIN : cfg.POINTS_LOSE)
+      loyalty_points: (match.player_a.loyalty_points || 0) + (isAWinner ? cfg.POINTS_WIN : (match.winner_id === 'DRAW' ? Math.floor(cfg.POINTS_WIN/2) : cfg.POINTS_LOSE))
     }).eq('id', match.player_a_id),
     
     supabase.from('users').update({
       elo_rating: result.playerBNewElo,
       total_matches: match.player_b.total_matches + 1,
-      total_wins: !isAWinner && match.winner_id !== 'DRAW' ? match.player_b.total_wins + 1 : match.player_b.total_wins,
-      loyalty_points: match.player_b.loyalty_points + (match.winner_id === match.player_b_id ? cfg.POINTS_WIN : cfg.POINTS_LOSE)
+      total_wins: match.winner_id === match.player_b_id ? match.player_b.total_wins + 1 : match.player_b.total_wins,
+      loyalty_points: (match.player_b.loyalty_points || 0) + (match.winner_id === match.player_b_id ? cfg.POINTS_WIN : (match.winner_id === 'DRAW' ? Math.floor(cfg.POINTS_WIN/2) : cfg.POINTS_LOSE))
     }).eq('id', match.player_b_id),
 
     // Update match dengan ELO after

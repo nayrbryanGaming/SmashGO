@@ -18,6 +18,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   poweredByHeader: false,
+  transpilePackages: ['recharts'],
 };
 
 export default withPWA(nextConfig);
