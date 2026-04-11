@@ -1,6 +1,8 @@
 // src/app/(auth)/register/page.tsx
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -23,6 +25,17 @@ export default function RegisterPage() {
   const supabase = createClient()
   const router = useRouter()
   const { toast } = useToast()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <Loader2 className="animate-spin h-10 w-10 text-indigo-600" />
+    </div>
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()

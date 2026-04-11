@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { findMatch } from '@/lib/matchmaking'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * CRON JOB: Process matchmaking queue
  * This should be called every 30-60 seconds via Vercel Cron or GitHub Actions.

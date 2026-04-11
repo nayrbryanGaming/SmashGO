@@ -1,17 +1,30 @@
-// src/lib/midtrans.ts
+// @ts-expect-error: midtrans-client lacks type definitions
 import midtransClient from 'midtrans-client'
 
-export const midtransSnap = new midtransClient.Snap({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY!,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY!,
-})
+let _midtransSnap: any = null
+let _midtransCoreApi: any = null
 
-export const midtransCoreApi = new midtransClient.CoreApi({
-  isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
-  serverKey: process.env.MIDTRANS_SERVER_KEY!,
-  clientKey: process.env.MIDTRANS_CLIENT_KEY!,
-})
+export function getMidtransSnap() {
+  if (!_midtransSnap) {
+    _midtransSnap = new midtransClient.Snap({
+      isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+      serverKey: process.env.MIDTRANS_SERVER_KEY!,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY!,
+    })
+  }
+  return _midtransSnap
+}
+
+export function getMidtransCoreApi() {
+  if (!_midtransCoreApi) {
+    _midtransCoreApi = new midtransClient.CoreApi({
+      isProduction: process.env.MIDTRANS_IS_PRODUCTION === 'true',
+      serverKey: process.env.MIDTRANS_SERVER_KEY!,
+      clientKey: process.env.MIDTRANS_CLIENT_KEY!,
+    })
+  }
+  return _midtransCoreApi
+}
 
 export interface CreatePaymentParams {
   bookingId: string
@@ -78,7 +91,7 @@ export async function createMidtransPayment(params: CreatePaymentParams) {
     },
   }
 
-  const transaction = await midtransSnap.createTransaction(parameter)
+  const transaction = await getMidtransSnap().createTransaction(parameter)
   return { token: transaction.token, redirect_url: transaction.redirect_url, order_id: orderId }
 }
 

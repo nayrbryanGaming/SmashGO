@@ -1,4 +1,6 @@
 'use client'
+
+export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,16 +12,25 @@ import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [activeBookings, setActiveBookings] = useState<any[]>([])
   const [recentMatches, setRecentMatches] = useState<any[]>([])
+  const [supabase, setSupabase] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setSupabase(createClient())
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function fetchData() {
+      if (!supabase) return
       setLoading(true)
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (authUser) {
@@ -70,7 +81,7 @@ export default function DashboardPage() {
   const loyalty = user ? getLoyaltyTier(user.loyalty_points) : getLoyaltyTier(0)
   const winRate = user?.total_matches > 0 ? Math.round((user.total_wins / user.total_matches) * 100) : 0
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { Trophy, Users, Info } from 'lucide-react'
 
-export default function TournamentRegisterPage() {
+import { Suspense } from 'react'
+
+function TournamentRegisterForm() {
   const searchParams = useSearchParams()
   const tournamentId = searchParams.get('id')
   const supabase = createClient()
@@ -131,5 +133,13 @@ export default function TournamentRegisterPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function TournamentRegisterPage() {
+  return (
+    <Suspense fallback={<div className="p-8 animate-pulse bg-muted h-64 rounded-xl m-4" />}>
+      <TournamentRegisterForm />
+    </Suspense>
   )
 }

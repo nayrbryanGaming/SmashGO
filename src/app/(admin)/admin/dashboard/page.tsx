@@ -1,5 +1,7 @@
 // src/app/(admin)/admin/dashboard/page.tsx
 'use client'
+
+export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,11 +21,18 @@ export default function AdminDashboardPage() {
   })
   const [recentBookings, setRecentBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setSupabase(createClient())
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function fetchAdminData() {
+      if (!supabase) return
       setLoading(true)
       const today = new Date().toISOString().split('T')[0]
 
@@ -51,7 +60,7 @@ export default function AdminDashboardPage() {
         .select('amount')
         .eq('status', 'success')
         .gte('paid_at', today)
-      const totalRev = payments?.reduce((acc, curr) => acc + curr.amount, 0) || 0
+      const totalRev = payments?.reduce((acc: number, curr: any) => acc + curr.amount, 0) || 0
 
       // Fetch Bookings Today
       const { count: bookingCount } = await supabase
@@ -92,8 +101,8 @@ export default function AdminDashboardPage() {
     fetchAdminData()
   }, [supabase])
 
-  if (loading) {
-    return <div className="flex items-center justify-center p-20 animate-pulse text-indigo-600 font-black">MEMUAT DATA DASHBOARD ADMIN...</div>
+  if (!mounted || loading) {
+    return <div className="flex items-center justify-center p-20 animate-pulse text-indigo-600 font-black uppercase tracking-widest">MEMUAT DATA DASHBOARD ADMIN...</div>
   }
 
   return (

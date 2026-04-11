@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest) {
   const supabase = await createClient()
   // Verify Cron Secret
@@ -10,7 +12,7 @@ export async function GET(req: NextRequest) {
   }
 
   // 1. Mark expired matchmaking queue entries
-  const { error, count } = await supabase
+  const { data, error } = await supabase
     .from('matchmaking_queue')
     .update({ 
       status: 'expired',
@@ -18,12 +20,12 @@ export async function GET(req: NextRequest) {
     })
     .eq('status', 'searching')
     .lt('expires_at', new Date().toISOString())
-    .select('id', { count: 'exact', head: false })
+    .select('id')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json({
-    expiredCount: count || 0,
+    expiredCount: data?.length || 0,
     timestamp: new Date().toISOString()
   })
 }

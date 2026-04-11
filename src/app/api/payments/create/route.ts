@@ -1,6 +1,8 @@
 // src/app/api/payments/create/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 import { createMidtransPayment } from '@/lib/midtrans'
 
 export async function POST(req: NextRequest) {

@@ -1,6 +1,8 @@
 // src/app/(auth)/login/page.tsx
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -15,14 +17,27 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
   const router = useRouter()
   const { toast } = useToast()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setSupabase(createClient())
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <Loader2 className="animate-spin h-10 w-10 text-indigo-600" />
+    </div>
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
+    if (!supabase) return
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

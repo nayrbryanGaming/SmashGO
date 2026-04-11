@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { findMatch } from '@/lib/matchmaking';
+
+export const dynamic = 'force-dynamic';
 
 /**
  * SmashGo Matchmaking Cron Job
@@ -8,13 +10,10 @@ import { findMatch } from '@/lib/matchmaking';
  * This job attempts to find matches for all users currently in the 'searching' state.
  */
 export async function GET(req: NextRequest) {
-  // Optional: Add security check for CRON_SECRET if needed
-  // const authHeader = req.headers.get('authorization');
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return new Response('Unauthorized', { status: 401 });
-  // }
-
-  const supabase = await createClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   try {
     // 1. Get all active 'searching' entries ordered by oldest first

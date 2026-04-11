@@ -3,13 +3,13 @@ import { z } from 'zod'
 export const bookingSchema = z.object({
   court_id: z.string().uuid(),
   booking_date: z.date({
-    required_error: "Pilih tanggal booking.",
+    message: "Pilih tanggal booking.",
   }),
   start_time: z.string({
-    required_error: "Pilih jam mulai.",
+    message: "Pilih jam mulai.",
   }),
   end_time: z.string({
-    required_error: "Pilih jam selesai.",
+    message: "Pilih jam selesai.",
   }),
   duration_hours: z.number().min(1).max(5),
 })

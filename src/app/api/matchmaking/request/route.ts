@@ -1,6 +1,8 @@
 // src/app/api/matchmaking/request/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 import { findMatch } from '@/lib/matchmaking'
 import { z } from 'zod'
 

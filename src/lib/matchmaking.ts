@@ -3,10 +3,17 @@ import { createClient } from '@supabase/supabase-js'
 import { ELO_CONFIG } from './elo'
 // import { sendMatchFoundNotification } from './fcm' // Assuming this is available or will be
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+let _supabase: any = null
+
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  }
+  return _supabase
+}
 
 /**
  * FUNGSI UTAMA: Cari lawan yang sesuai untuk user yang masuk antrian
@@ -17,6 +24,8 @@ export async function findMatch(queueEntryId: string): Promise<{
   opponentId?: string
   message: string
 }> {
+  const supabase = getSupabase()
+  
   // Ambil data user yang sedang request
   const { data: requester, error: reqError } = await supabase
     .from('matchmaking_queue')
@@ -24,10 +33,6 @@ export async function findMatch(queueEntryId: string): Promise<{
     .eq('id', queueEntryId)
     .eq('status', 'searching')
     .single()
-
-  if (reqError || !requester) {
-    return { found: false, message: 'Entry antrian tidak ditemukan atau sudah tidak aktif' }
-  }
 
   // Cek apakah antrian sudah expired
   if (new Date(requester.expires_at) < new Date()) {
@@ -79,13 +84,13 @@ export async function findMatch(queueEntryId: string): Promise<{
   // Filter tambahan: preferensi waktu (jika ada)
   let bestCandidate = candidates[0]
   if (requester.preferred_date) {
-    const timeMatches = candidates.filter(c => {
+    const timeMatches = candidates.filter((c: any) => {
       if (!c.preferred_date) return true // Fleksibel → bisa kapan saja
       return c.preferred_date === requester.preferred_date
     })
     if (timeMatches.length > 0) {
       // Sort berdasarkan selisih ELO terkecil
-      bestCandidate = timeMatches.sort((a, b) =>
+      bestCandidate = timeMatches.sort((a: any, b: any) =>
         Math.abs(a.user_elo - requester.user_elo) - Math.abs(b.user_elo - requester.user_elo)
       )[0]
     }
@@ -159,6 +164,7 @@ export async function findMatch(queueEntryId: string): Promise<{
  * Dipanggil dari API PATCH /api/matches/score setelah match completed
  */
 export async function updateEloAfterMatch(matchId: string): Promise<void> {
+  const supabase = getSupabase()
   const { data: match } = await supabase
     .from('matches')
     .select('*, player_a:users!matches_player_a_id_fkey(id, elo_rating, total_matches, loyalty_points, total_wins), player_b:users!matches_player_b_id_fkey(id, elo_rating, total_matches, loyalty_points, total_wins)')

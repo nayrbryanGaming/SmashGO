@@ -9,7 +9,9 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 
-export default function VerifyPage() {
+import { Suspense } from 'react'
+
+function VerifyForm() {
   const [otp, setOtp] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const supabase = createClient()
@@ -51,7 +53,7 @@ export default function VerifyPage() {
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold tracking-tight">Verifikasi Email</CardTitle>
           <CardDescription>
-            Masukkan 6 digit kode OTP yang dikirim ke {email}.
+            Masukkan 6 digit kode OTP yang dikirim ke {email || 'email kamu'}.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleVerify}>
@@ -87,5 +89,17 @@ export default function VerifyPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 via-primary to-purple-600">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+      </div>
+    }>
+      <VerifyForm />
+    </Suspense>
   )
 }
