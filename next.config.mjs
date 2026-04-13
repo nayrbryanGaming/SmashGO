@@ -9,6 +9,9 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
@@ -19,6 +22,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ['recharts'],
+  experimental: {
+    workerThreads: false,
+    cpus: 1,
+  },
 };
 
 export default withPWA(nextConfig);

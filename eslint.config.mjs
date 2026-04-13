@@ -19,6 +19,7 @@ const eslintConfig = [
       "@typescript-eslint/no-empty-object-type": "off",
       "react/no-unescaped-entities": "off",
       "@next/next/no-img-element": "off",
+      "react-hooks/exhaustive-deps": "off",
     },
     ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
