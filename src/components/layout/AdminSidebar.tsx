@@ -2,19 +2,22 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { 
-  LayoutDashboard, 
-  MapPin, 
-  Users, 
-  CalendarCheck, 
-  ScanQrCode, 
-  Package, 
-  Trophy, 
-  BarChart3, 
+import { useState } from 'react'
+import {
+  LayoutDashboard,
+  MapPin,
+  Users,
+  CalendarCheck,
+  ScanQrCode,
+  Package,
+  Trophy,
+  BarChart3,
   LogOut,
   Settings,
   ShieldAlert,
-  ChevronRight
+  ChevronRight,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -31,7 +34,7 @@ const adminNavItems = [
   { icon: BarChart3, label: 'LAPORAN KEUANGAN', href: '/admin/reports' },
 ]
 
-export function AdminSidebar({ className }: { className?: string }) {
+function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const supabase = createClient()
   const router = useRouter()
@@ -43,17 +46,26 @@ export function AdminSidebar({ className }: { className?: string }) {
   }
 
   return (
-    <aside className={cn("hidden lg:flex flex-col h-screen w-72 p-6 bg-slate-950 border-r border-red-900/20 sticky top-0 shadow-2xl z-50", className)}>
-      <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 rotate-3 transition-transform">
-          <ShieldAlert className="text-white h-6 w-6" />
+    <div className="flex flex-col h-full p-6 bg-slate-950 border-r border-red-900/20">
+      {/* Logo */}
+      <div className="flex items-center justify-between mb-10 px-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/40 rotate-3 transition-transform">
+            <ShieldAlert className="text-white h-6 w-6" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-2xl font-black italic tracking-tighter uppercase text-white leading-none">SmashGo</span>
+            <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] pt-1 italic">ADMIN CONSOLE</span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-2xl font-black italic tracking-tighter uppercase text-white leading-none">SmashGo</span>
-          <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.2em] pt-1 italic">ADMIN CONSOLE</span>
-        </div>
+        {onClose && (
+          <button onClick={onClose} className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-all">
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
+      {/* Nav */}
       <nav className="flex-1 space-y-1">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-600 mb-4 px-4 italic">Management Control</p>
         {adminNavItems.map((item) => {
@@ -62,10 +74,11 @@ export function AdminSidebar({ className }: { className?: string }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 "flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
-                isActive 
-                  ? "bg-red-600/10 text-white shadow-[inset_0_0_20px_rgba(220,38,38,0.1)]" 
+                isActive
+                  ? "bg-red-600/10 text-white shadow-[inset_0_0_20px_rgba(220,38,38,0.1)]"
                   : "text-slate-500 hover:text-white hover:bg-slate-900"
               )}
             >
@@ -82,17 +95,18 @@ export function AdminSidebar({ className }: { className?: string }) {
         })}
       </nav>
 
+      {/* Footer */}
       <div className="mt-auto space-y-4 pt-6 border-t border-slate-900">
         <div className="bg-slate-900/50 p-4 rounded-2xl border border-slate-800/50">
-           <div className="flex items-center justify-between text-[10px] font-black italic uppercase text-slate-500 mb-2">
-              <span>Server Status</span>
-              <span className="flex items-center gap-1 text-green-500">
-                 <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> ONLINE
-              </span>
-           </div>
-           <div className="h-1 bg-slate-950 rounded-full overflow-hidden">
-              <div className="h-full bg-green-500 w-full opacity-50" />
-           </div>
+          <div className="flex items-center justify-between text-[10px] font-black italic uppercase text-slate-500 mb-2">
+            <span>Server Status</span>
+            <span className="flex items-center gap-1 text-green-500">
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> ONLINE
+            </span>
+          </div>
+          <div className="h-1 bg-slate-950 rounded-full overflow-hidden">
+            <div className="h-full bg-green-500 w-full opacity-50" />
+          </div>
         </div>
 
         <div className="space-y-1">
@@ -100,7 +114,7 @@ export function AdminSidebar({ className }: { className?: string }) {
             <Settings className="h-5 w-5 text-slate-600 group-hover:text-red-500 group-hover:rotate-45 transition-transform" />
             <span>Pengaturan Sistem</span>
           </button>
-          <button 
+          <button
             onClick={handleLogout}
             className="flex items-center gap-4 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 w-full text-xs font-bold uppercase tracking-widest transition-all group"
           >
@@ -109,6 +123,44 @@ export function AdminSidebar({ className }: { className?: string }) {
           </button>
         </div>
       </div>
-    </aside>
+    </div>
+  )
+}
+
+export function AdminSidebar({ className }: { className?: string }) {
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  return (
+    <>
+      {/* Mobile hamburger button — always visible on mobile */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-red-600 rounded-xl shadow-2xl shadow-red-900/40 text-white active:scale-95 transition-transform"
+        aria-label="Buka menu admin"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <div className={cn(
+        "lg:hidden fixed top-0 left-0 h-full w-72 z-50 transform transition-transform duration-300 ease-in-out shadow-2xl",
+        mobileOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <SidebarContent onClose={() => setMobileOpen(false)} />
+      </div>
+
+      {/* Desktop sidebar — always visible on lg+ */}
+      <aside className={cn("hidden lg:flex flex-col h-screen w-72 sticky top-0 shadow-2xl z-50 flex-shrink-0", className)}>
+        <SidebarContent />
+      </aside>
+    </>
   )
 }
