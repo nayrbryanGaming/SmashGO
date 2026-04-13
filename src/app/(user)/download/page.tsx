@@ -66,9 +66,11 @@ export default function DownloadPage() {
                 <ShieldCheck className="h-4 w-4 text-emerald-500" /> Size: 32MB
               </li>
             </ul>
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700 h-16 rounded-2xl font-black italic uppercase tracking-widest shadow-xl shadow-indigo-500/20">
-              DOWNLOAD APK <Download className="ml-2 h-5 w-5" />
-            </Button>
+            <a href="/smashgo-mobile.apk" download className="w-full">
+              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 h-16 rounded-2xl font-black italic uppercase tracking-widest shadow-xl shadow-indigo-500/20">
+                DOWNLOAD APK <Download className="ml-2 h-5 w-5" />
+              </Button>
+            </a>
           </motion.div>
 
           {/* PWA / iOS */}
