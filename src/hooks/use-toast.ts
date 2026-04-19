@@ -1,7 +1,13 @@
 "use client"
 
+// Inspired by shadcn/ui
+
 import * as React from "react"
-import { type ToastActionElement, type ToastProps } from "@/components/ui/toast"
+
+import type {
+  ToastActionElement,
+  ToastProps,
+} from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
@@ -27,21 +33,23 @@ function genId() {
   return count.toString()
 }
 
+type ActionType = typeof actionTypes
+
 type Action =
   | {
-      type: typeof actionTypes.ADD_TOAST
+      type: ActionType["ADD_TOAST"]
       toast: ToasterToast
     }
   | {
-      type: typeof actionTypes.UPDATE_TOAST
+      type: ActionType["UPDATE_TOAST"]
       toast: Partial<ToasterToast>
     }
   | {
-      type: typeof actionTypes.DISMISS_TOAST
+      type: ActionType["DISMISS_TOAST"]
       toastId?: ToasterToast["id"]
     }
   | {
-      type: typeof actionTypes.REMOVE_TOAST
+      type: ActionType["REMOVE_TOAST"]
       toastId?: ToasterToast["id"]
     }
 
@@ -86,7 +94,7 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effect ! - This should be removed in a real world app
+      // ! Side effects ! - This should be removed from the reducer to keep it pure.
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -132,7 +140,9 @@ function dispatch(action: Action) {
   })
 }
 
-function toast({ ...props }: Omit<ToasterToast, "id">) {
+type Toast = Omit<ToasterToast, "id">
+
+function toast({ ...props }: Toast) {
   const id = genId()
 
   const update = (props: ToasterToast) =>

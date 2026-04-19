@@ -1,42 +1,59 @@
-import { Inter, Outfit } from 'next/font/google'
-import './globals.css'
-import { Providers } from '@/components/Providers'
-import { cn } from '@/lib/utils'
-import { Metadata } from 'next'
+import type { Metadata } from "next";
+import { Inter, Outfit } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' })
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: "--font-sans"
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-heading"
+});
+
+export const viewport = {
+  themeColor: "#3b82f6",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
-  title: 'SmashGo | Badminton Court Management',
-  description: 'Booking lapangan bulu tangkis & matchmaking untuk perusahaan',
-  manifest: '/manifest.json',
-  themeColor: '#6366f1',
+  title: "SmashGo | Booking Lapangan Tanpa Ribet, Langsung Main",
+  description: "Platform manajemen booking lapangan badminton berbasis web app dengan Smart Matchmaking ELO dan koordinasi WhatsApp real-time.",
+  keywords: ["badminton", "booking lapangan", "matchmaking", "bulutangkis", "SmashGo"],
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icons/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
-    title: 'SmashGo',
+    statusBarStyle: "default",
+    title: "SmashGo",
   },
-}
+  verification: {
+    google: "",
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="id">
-      <body className={cn(
-        "min-h-screen bg-background font-sans antialiased",
-        inter.variable,
-        outfit.variable
-      )}>
-        <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <main className="flex-1">{children}</main>
-          </div>
-        </Providers>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+      </head>
+      <body className={`${inter.variable} ${outfit.variable} bg-[#0f172a] text-white selection:bg-primary/30`}>
+        <main className="min-h-screen">
+          {children}
+        </main>
       </body>
     </html>
-  )
+  );
 }

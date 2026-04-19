@@ -1,11 +1,10 @@
-// src/lib/supabase/server.ts
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient as supabaseCreateServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export async function createClient() {
   const cookieStore = await cookies()
 
-  return createServerClient(
+  return supabaseCreateServerClient<any>(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
     {
@@ -28,3 +27,6 @@ export async function createClient() {
     }
   )
 }
+
+// Alias for convenience across different boilerplate styles
+export const createServerClient = createClient;

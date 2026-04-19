@@ -1,21 +1,37 @@
-// src/app/api/matchmaking/cancel/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabase/server";
+import { MatchmakingService } from "@/lib/services/matchmakingService";
 
-export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function POST(request: Request) {
+  try {
+    const supabase = await createServerClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-  const { queue_id } = await req.json()
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-  const { error } = await supabase
-    .from('matchmaking_queue')
-    .update({ status: 'cancelled' })
-    .eq('id', queue_id)
-    .eq('user_id', user.id)
+    const { id } = await request.json();
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: "ID Matchmaking diperlukan." },
+        { status: 400 }
+      );
+    }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    await MatchmakingService.cancelQueue(supabase, id, user.id);
 
-  return NextResponse.json({ success: true, message: 'Matchmaking dibatalkan' })
+    return NextResponse.json({
+      success: true,
+      message: "Berhasil membatalkan antrian."
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message || "Gagal membatalkan antrian." },
+      { status: 500 }
+    );
+  }
 }

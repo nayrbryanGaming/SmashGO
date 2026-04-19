@@ -29,8 +29,6 @@ interface BracketViewProps {
 export function BracketView({ matches }: BracketViewProps) {
   // A robust tree-view layout would require a library like react-tournament-bracket.
   // For standard presentation without extra heavy deps, we do a simple linear flow or grouped column flow here.
-  // We mock a simplified grouped-by-round view.
-  
   const rounds = Array.from(new Set(matches.map(m => m.tournamentRoundText)))
 
   return (
