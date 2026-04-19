@@ -1,4 +1,4 @@
--- SmashCourt: Production-Ready Schema
+-- SmashGo: Production-Ready Schema
 -- Focus: Reliability, Concurrency-Safety, and Performance
 
 -- Enable necessary extensions
