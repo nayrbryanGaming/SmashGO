@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Calendar, Clock, MapPin, Send, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { BookingInput } from "@/lib/validators";
 import { Court } from "@/types";
+import { BookingService } from "@/lib/services/bookingService";
 
 export default function QuickBookingForm({ courts }: { courts: Court[] }) {
   const [loading, setLoading] = useState(false);
@@ -51,8 +52,17 @@ export default function QuickBookingForm({ courts }: { courts: Court[] }) {
           onClick={() => {
             const court = courts.find(c => c.id === form.court_id);
             if (!court) return;
-            const waMsg = `Halo Admin SmashGo, saya booking ${court.name} tgl ${form.date} jam ${form.start_time}-${form.end_time}. Mohon konfirmasinya.`;
-            window.open(`https://wa.me/${(court.admin_phone || "628123456789").replace(/\D/g, "")}?text=${encodeURIComponent(waMsg)}`, "_blank");
+            
+            const link = BookingService.buildWhatsAppLink({
+              adminPhone: court.admin_phone || "628123456789",
+              userName: "User SmashGo", // Default since we don't have name in this form
+              courtName: court.name,
+              date: form.date,
+              start: form.start_time,
+              end: form.end_time
+            });
+            
+            window.open(link, "_blank");
           }}
           className="btn-primary w-full max-w-xs flex items-center justify-center gap-2 bg-emerald-600 border-none"
         >

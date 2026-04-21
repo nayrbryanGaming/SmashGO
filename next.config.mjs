@@ -22,10 +22,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ['recharts'],
+  turbopack: {},
   experimental: {
     workerThreads: false,
     cpus: 1,
-    turbopack: {},
   },
 };
 

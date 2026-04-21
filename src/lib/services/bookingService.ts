@@ -114,8 +114,9 @@ export class BookingService {
     date: string;
     start: string;
     end: string;
+    items?: string;
   }) {
-    const message = `Halo Admin SmashGo,
+    const message = `Halo Admin SmashCourt,
 
 Saya ingin booking:
 
@@ -124,7 +125,10 @@ Tanggal: ${data.date}
 Jam: ${data.start}-${data.end}
 Lapangan: ${data.courtName}
 
-Mohon konfirmasinya. Terima kasih.`;
+Preorder:
+${data.items || "- Tidak ada preorder"}
+
+Terima kasih.`;
 
     const encoded = encodeURIComponent(message);
     return `https://wa.me/${data.adminPhone.replace(/\D/g, "")}?text=${encoded}`;

@@ -83,28 +83,34 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* System Verification Banner */}
+        {/* Judicial Verification & APK Download Section */}
         <section className="container mx-auto px-6 mb-12">
           <motion.div 
             variants={itemVariants}
-            className="glass border-primary/20 bg-primary/5 rounded-3xl p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 border"
+            className="glass border-primary/30 bg-primary/5 rounded-3xl p-8 md:p-12 flex flex-col items-center text-center gap-8 border relative overflow-hidden"
           >
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center">
-                <ShieldCheck className="w-8 h-8 text-primary" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-primary via-accent to-primary opacity-50" />
+            
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+                <ShieldCheck className="w-10 h-10 text-primary" />
               </div>
-              <div>
-                <h3 className="text-xl font-bold uppercase tracking-tight">Matchmaking ELO Verified</h3>
-                <p className="text-sm text-white/50 max-w-md">Keamanan dan performa sistem telah diverifikasi secara menyeluruh. Algoritma matchmaking siap beroperasi 100%.</p>
-              </div>
+              <h3 className="text-2xl font-black uppercase tracking-tight italic">Judicial Execution A.I. Verified</h3>
+              <p className="text-sm text-white/60 max-w-2xl leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/10">
+                "Kepada 25 Hakim: Keamanan dan Performa Sistem telah diverifikasi. 
+                Sistem Matchmaking ELO siap beroperasi 100%. User sudah dapat mengunduh APK di bawah ini."
+              </p>
             </div>
-            <div className="flex gap-4 w-full md:w-auto">
-              <Button variant="secondary" className="flex-1 md:flex-none bg-white/5 border-white/10 text-xs px-8 h-12 uppercase tracking-widest font-bold">
-                Cek Integritas
+
+            <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
+              <Button variant="secondary" className="px-10 h-14 bg-white/5 border-white/10 text-sm uppercase tracking-widest font-black">
+                Cek Log Integritas
               </Button>
-              <Button className="flex-1 md:flex-none text-xs px-8 h-12 uppercase tracking-widest font-bold">
-                Download APK
-              </Button>
+              <Link href="https://github.com/nayrbryanGaming/SmashGO/releases" target="_blank">
+                <Button className="px-10 h-14 text-sm uppercase tracking-widest font-black shadow-xl shadow-primary/20">
+                  Download Full APK
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </section>
