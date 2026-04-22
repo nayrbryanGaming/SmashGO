@@ -79,8 +79,16 @@
     @apply shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-3xl p-8;
   }
   
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-linear-to-br from-white via-primary to-accent;
+    @apply bg-clip-text text-transparent bg-linear-to-r from-primary via-accent to-indigo-400;
+  }
+
+  .premium-shadow {
+    @apply shadow-[0_0_50px_-12px_rgba(59,130,246,0.5)];
   }
 
   .glow {
@@ -99,5 +107,14 @@
   @keyframes float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
     50% { transform: translateY(-15px) rotate(0.5deg); }
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
   }
 }

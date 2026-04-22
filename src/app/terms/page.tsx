@@ -9,9 +9,9 @@ export default function TermsPage() {
         <ArrowLeft className="w-4 h-4" /> Kembali
       </Link>
 
-      <h1 className="text-4xl font-bold mb-8 flex items-center gap-4 text-primary">
-        <FileText className="w-10 h-10" /> Terms of Service
-      </h1>
+        <h1 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase italic leading-tight">
+          Terms of <span className="text-primary italic">Service</span>
+        </h1>
 
       <GlassCard className="p-8 space-y-8 leading-relaxed text-white/70">
         <section>

@@ -49,8 +49,14 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
       </head>
-      <body className={`${inter.variable} ${outfit.variable} bg-[#0f172a] text-white selection:bg-primary/30`}>
-        <main className="min-h-screen">
+      <body className={`${inter.variable} ${outfit.variable} bg-[#020617] text-white antialiased selection:bg-primary/30`}>
+        {/* Universal Premium Background */}
+        <div className="fixed inset-0 -z-10 bg-[#020617] pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[140px] animate-pulse" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-accent/5 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '3s' }} />
+        </div>
+        
+        <main className="min-h-screen relative z-10">
           {children}
         </main>
       </body>

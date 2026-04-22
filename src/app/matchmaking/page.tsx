@@ -149,15 +149,17 @@ export default function MatchmakingPage() {
 
   return (
     <div className="container mx-auto px-6 py-24 max-w-5xl">
-       <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
-        <div>
-          <h1 className="text-4xl font-bold mb-4">Smart Matchmaking</h1>
-          <p className="text-white/60">Temukan lawan tanding yang seimbang secara real-time.</p>
+      <div className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+        <div className="space-y-2">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">
+            Smart <span className="text-primary">Matchmaking</span>
+          </h1>
+          <p className="text-white/60 text-lg">Temukan lawan tanding yang seimbang secara real-time.</p>
         </div>
         <div className="flex gap-4">
-          <GlassCard className="py-2 px-4 flex items-center gap-2 border-primary/20 bg-primary/5">
+          <GlassCard className="py-2 px-6 flex items-center gap-2 border-primary/20 bg-primary/10 rounded-full">
             <Zap className="w-4 h-4 text-primary fill-primary" />
-            <span className="text-xs font-bold uppercase tracking-wider">ELO Rank Alpha</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em]">ELO Rank Engine v2</span>
           </GlassCard>
         </div>
       </div>
@@ -258,25 +260,29 @@ export default function MatchmakingPage() {
       ) : (
         <div className="max-w-2xl mx-auto space-y-8">
            {activeQueue.status === 'searching' ? (
-             <GlassCard className="text-center py-20 relative overflow-hidden group">
-               <div className="absolute top-0 left-0 w-full h-1 bg-primary/20">
-                 <div className="h-full bg-primary animate-[shimmer_2s_infinite]" style={{ width: '30%' }} />
+            <GlassCard className="text-center py-20 relative overflow-hidden group bg-white/[0.02] border-white/10">
+               <div className="absolute top-0 left-0 w-full h-1 bg-primary/10 overflow-hidden">
+                 <div className="h-full bg-primary animate-shimmer" style={{ width: '40%' }} />
                </div>
                
-               <div className="relative mb-8">
-                  <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin mx-auto" />
-                  <Users className="w-10 h-10 text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+               <div className="relative mb-10">
+                  <div className="w-32 h-32 rounded-full border-4 border-primary/10 border-t-primary animate-spin mx-auto flex items-center justify-center">
+                    <Users className="w-12 h-12 text-primary animate-pulse" />
+                  </div>
                </div>
 
-               <h2 className="text-2xl font-bold mb-2">Mencari Lawan Seimbang...</h2>
-               <p className="text-white/40 mb-8">Halaman ini akan otomatis diperbarui jika lawan ditemukan.</p>
+               <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-3">Mencari Lawan...</h2>
+               <p className="text-white/40 mb-10 max-w-sm mx-auto leading-relaxed">
+                 Sistem sedang menyisir antrian untuk mencocokkan level skill dan jadwal Anda. 
+                 Halaman ini akan otomatis diperbarui.
+               </p>
                
-               <div className="flex justify-center gap-4">
-                 <Button variant="secondary" onClick={() => fetchActiveQueue(currentUser?.id || '')} className="border-white/10 text-white/60">
-                    Refresh <RotateCcw className="w-4 h-4 ml-2" />
+               <div className="flex flex-col sm:flex-row justify-center gap-4 px-8">
+                 <Button variant="secondary" onClick={() => fetchActiveQueue(currentUser?.id || '')} className="h-14 px-8 rounded-2xl border-white/10 text-white font-bold">
+                    REFRESH STATUS <RotateCcw className="w-4 h-4 ml-2" />
                  </Button>
-                 <Button variant="secondary" onClick={handleCancel} className="text-red-400 border-red-500/20">
-                    Batalkan <X className="w-4 h-4" />
+                 <Button variant="secondary" onClick={handleCancel} className="h-14 px-8 rounded-2xl text-red-400 border-red-500/20 hover:bg-red-500/5">
+                    BATALKAN <X className="w-4 h-4 ml-2" />
                  </Button>
                </div>
              </GlassCard>

@@ -9,9 +9,9 @@ export default function PrivacyPage() {
         <ArrowLeft className="w-4 h-4" /> Kembali
       </Link>
 
-      <h1 className="text-4xl font-bold mb-8 flex items-center gap-4">
-        <Shield className="w-10 h-10 text-primary" /> Privacy Policy
-      </h1>
+        <h1 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter uppercase italic leading-tight">
+          Privacy <span className="text-primary italic">Policy</span>
+        </h1>
 
       <GlassCard className="p-8 space-y-8 leading-relaxed text-white/70">
         <section>

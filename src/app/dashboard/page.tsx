@@ -34,43 +34,44 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="mb-12">
-          <h1 className="text-4xl font-black mb-2 flex items-center gap-4">
-            <LayoutDashboard className="w-8 h-8 text-primary" />
-            PLAYER DASHBOARD
+        <div className="mb-12 space-y-4">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">
+            Player <span className="text-primary">Hub</span>
           </h1>
-          <p className="text-slate-400">Kelola status matchmaking dan pantau performa tandingmu.</p>
+          <p className="text-white/40 text-lg md:text-xl font-medium">Kelola status matchmaking dan pantau performa tandingmu.</p>
         </div>
 
         <section>
           <MatchmakingDashboard currentUser={user} />
         </section>
 
-        <section className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <GlassCard className="p-8 border-white/5 bg-white/[0.02] group">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
-              <RotateCcw className="w-5 h-5 text-primary" /> Riwayat Tanding
-            </h3>
-            <div className="py-10 text-center border-2 border-dashed border-white/5 rounded-2xl">
-              <p className="text-sm text-slate-500">Belum ada data tanding dalam 30 hari terakhir.</p>
+        <section className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <GlassCard className="p-10 border-white/5 bg-white/[0.02] group">
+            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-8 group-hover:scale-110 transition-transform">
+              <RotateCcw className="w-6 h-6" />
+            </div>
+            <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-6">Match History</h3>
+            <div className="py-16 text-center border-2 border-dashed border-white/5 rounded-3xl bg-white/[0.01]">
+              <p className="text-sm font-bold tracking-widest text-white/20 uppercase">No Recent Activity</p>
             </div>
           </GlassCard>
           
-          <GlassCard className="p-8 border-white/5 bg-white/[0.02] group">
-            <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
-              <Users className="w-5 h-5 text-accent" /> Peringkat ELO
-            </h3>
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+          <GlassCard className="p-10 border-white/5 bg-white/[0.02] group">
+            <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center text-accent mb-8 group-hover:scale-110 transition-transform">
+              <Users className="w-6 h-6" />
+            </div>
+            <h3 className="text-2xl font-black uppercase tracking-tighter italic mb-6">ELO Performance</h3>
+            <div className="flex items-center justify-between p-8 bg-white/5 rounded-3xl border border-white/5">
               <div>
-                <span className="text-[10px] uppercase font-bold text-white/30 tracking-widest">Base Rating</span>
-                <p className="text-2xl font-black text-white">1,200</p>
+                <span className="text-[10px] uppercase font-black text-white/30 tracking-[0.3em] block mb-2">Base Rating</span>
+                <p className="text-4xl font-black text-white">1,200</p>
               </div>
-              <div className="px-4 py-2 bg-accent/10 text-accent rounded-xl text-xs font-bold">
+              <div className="px-6 py-2 bg-accent/20 text-accent rounded-full text-[10px] font-black uppercase tracking-widest border border-accent/30">
                 RANK ALPHA
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-4 leading-relaxed italic">
-              *Peringkat dihitung berdasarkan performa tanding yang diverifikasi oleh Admin.
+            <p className="text-[10px] text-white/20 mt-8 leading-relaxed italic font-medium uppercase tracking-widest">
+              *Peringkat dihitung berdasarkan performa tanding terverifikasi.
             </p>
           </GlassCard>
         </section>

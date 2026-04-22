@@ -4,10 +4,9 @@ import { BookingService } from "@/lib/services/bookingService";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
     const supabase = await createServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -18,33 +17,24 @@ export async function PATCH(
       );
     }
 
-    // Check user role
+    // Get user profile to check role
     const { data: profile } = await supabase
       .from("users")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    if (!profile) {
-      return NextResponse.json(
-        { success: false, message: "User profile not found." },
-        { status: 404 }
-      );
-    }
-
-    const { status } = await request.json();
+    const body = await request.json();
     const result = await BookingService.updateStatus(
-      supabase,
-      id,
-      status,
-      profile.role
+      supabase, 
+      params.id, 
+      body.status, 
+      profile?.role || "user"
     );
 
-    return NextResponse.json({
-      success: true,
-      message: `Status booking diperbarui menjadi ${status}.`
-    });
+    return NextResponse.json(result);
   } catch (error: any) {
+    console.error("[BOOKING_STATUS_PATCH]", error);
     return NextResponse.json(
       { success: false, message: error.message || "Gagal memperbarui status booking." },
       { status: 500 }

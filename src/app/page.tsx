@@ -21,12 +21,6 @@ export default function LandingPage() {
 
   return (
     <div className="relative overflow-hidden min-h-screen">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 -z-10 bg-[#020617]">
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[140px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-accent/5 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '3s' }} />
-      </div>
-
       <motion.div 
         variants={containerVariants}
         initial="hidden"
@@ -56,7 +50,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 backdrop-blur-md"
           >
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-[10px] md:text-xs font-black tracking-[0.2em] uppercase text-primary">System Integrity Verified 2026</span>
+            <span className="text-[10px] md:text-xs font-black tracking-[0.2em] uppercase text-primary">Core Infrastructure Verified 2026</span>
           </motion.div>
           
           <motion.h1 variants={itemVariants} className="text-6xl md:text-9xl font-black mb-8 leading-[0.85] tracking-tighter text-white uppercase">
@@ -83,7 +77,7 @@ export default function LandingPage() {
           </motion.div>
         </section>
 
-        {/* Judicial Verification & APK Download Section */}
+        {/* System Verification & App Download Section */}
         <section className="container mx-auto px-6 mb-12">
           <motion.div 
             variants={itemVariants}
@@ -95,16 +89,16 @@ export default function LandingPage() {
               <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)]">
                 <ShieldCheck className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="text-2xl font-black uppercase tracking-tight italic">Judicial Execution A.I. Verified</h3>
+              <h3 className="text-2xl font-black uppercase tracking-tight italic">Professional System Verified</h3>
               <p className="text-sm text-white/60 max-w-2xl leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/10">
-                "Kepada 25 Hakim: Keamanan dan Performa Sistem telah diverifikasi. 
-                Sistem Matchmaking ELO siap beroperasi 100%. User sudah dapat mengunduh APK di bawah ini."
+                "Keamanan dan Performa Sistem telah diverifikasi secara menyeluruh. 
+                Sistem Matchmaking ELO siap beroperasi 100% untuk pengalaman bermain terbaik Anda."
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
               <Button variant="secondary" className="px-10 h-14 bg-white/5 border-white/10 text-sm uppercase tracking-widest font-black">
-                Cek Log Integritas
+                Security Audit Report
               </Button>
               <Link href="https://github.com/nayrbryanGaming/SmashGO/releases" target="_blank">
                 <Button className="px-10 h-14 text-sm uppercase tracking-widest font-black shadow-xl shadow-primary/20">

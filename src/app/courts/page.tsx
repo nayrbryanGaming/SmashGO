@@ -26,13 +26,7 @@ export default function CourtsPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#020617] overflow-hidden">
-      {/* Background Decor */}
-      <div className="fixed inset-0 pointer-events-none opacity-20">
-        <div className="absolute top-[20%] right-[-5%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[20%] left-[-5%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[120px]" />
-      </div>
-
+    <div className="relative min-h-screen overflow-hidden">
       <div className="container mx-auto px-6 py-20 relative z-10">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}

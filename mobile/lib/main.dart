@@ -36,14 +36,14 @@ class _SmashGoWebViewState extends State<SmashGoWebView> {
     super.initState();
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0xFF0F172A))
+      ..setBackgroundColor(const Color(0xFF020617))
       ..loadRequest(Uri.parse('https://smashgo.vercel.app'));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFF020617),
       body: SafeArea(
         child: WebViewWidget(controller: controller),
       ),

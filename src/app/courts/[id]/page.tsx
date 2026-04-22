@@ -132,35 +132,66 @@ export default function BookingDetailPage() {
       </Link>
 
       {success ? (
-        <GlassCard className="text-center py-20 border-accent/20 bg-accent/5">
-          <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center text-accent mx-auto mb-8 animate-bounce">
+        <GlassCard className="text-center py-24 border-accent/20 bg-accent/5 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1 bg-accent/20">
+            <div className="h-full bg-accent animate-shimmer" style={{ width: '60%' }} />
+          </div>
+          <div className="w-24 h-24 rounded-full bg-accent/20 flex items-center justify-center text-accent mx-auto mb-8 shadow-[0_0_50px_rgba(16,185,129,0.3)]">
             <CheckCircle2 className="w-12 h-12" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Booking Berhasil Dikirim!</h1>
-          <p className="text-white/60 mb-8 max-w-md mx-auto">
-            Halaman akan dialihkan ke WhatsApp Admin untuk konfirmasi akhir. 
-            Mohon tunggu sebentar...
+          <div className="space-y-2">
+            <h1 className="text-4xl md:text-7xl font-black mb-4 tracking-tighter uppercase italic leading-[0.9]">
+              RESERVE <br />
+              <span className="text-primary italic">YOUR COURT</span>
+            </h1>
+            <p className="text-white/40 text-lg md:text-xl font-medium">Selesaikan booking Anda untuk mengunci slot lapangan.</p>
+          </div>
+          <p className="text-white/60 mb-10 max-w-md mx-auto text-lg leading-relaxed mt-6">
+            Permintaan Anda telah masuk ke sistem. 
+            Kami akan mengalihkan Anda ke WhatsApp Admin untuk konfirmasi pembayaran dan kunci slot.
           </p>
-          <Button onClick={() => router.push("/")} variant="secondary">Kembali ke Beranda</Button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+             <Button onClick={() => router.push("/")} variant="secondary" className="h-14 px-8 rounded-2xl border-white/10 text-white font-bold">
+               KEMBALI KE HOME
+             </Button>
+          </div>
         </GlassCard>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div className="space-y-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-2"
+          >
+            <h1 className="text-4xl md:text-7xl font-black mb-4 tracking-tighter uppercase italic leading-[0.9]">
+              RESERVE <br />
+              <span className="text-primary italic">YOUR COURT</span>
+            </h1>
+            <p className="text-white/40 text-lg md:text-xl font-medium">Selesaikan booking Anda untuk mengunci slot lapangan.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Summary */}
           <div className="lg:col-span-2 space-y-6">
-            <GlassCard className="bg-primary/5 border-primary/20">
-              <h2 className="text-2xl font-bold mb-6">Ringkasan</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <span className="text-white/40 text-sm">Lapangan</span>
-                  <span className="font-bold text-right">{court.name}</span>
+            <GlassCard className="bg-white/[0.02] border-white/10 p-10">
+              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-8 shadow-inner">
+                <CalendarIcon className="w-8 h-8" />
+              </div>
+              <h2 className="text-3xl font-black uppercase tracking-tighter italic mb-8">Summary</h2>
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/20">Selected Arena</p>
+                  <p className="text-2xl font-black text-white">{court.name}</p>
                 </div>
-                <div className="flex justify-between items-start">
-                  <span className="text-white/40 text-sm">Tarif</span>
-                  <span className="font-bold text-accent">Rp {court.price_per_hour.toLocaleString('id-ID')} / Jam</span>
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase font-black tracking-[0.2em] text-white/20">Hourly Rate</p>
+                  <p className="text-2xl font-black text-accent">Rp {court.price_per_hour.toLocaleString('id-ID')}</p>
                 </div>
-                <div className="pt-4 border-t border-white/10 flex justify-between items-center capitalize">
-                   <span className="text-white/40 text-sm">Status</span>
-                   <span className="px-2 py-1 rounded bg-accent/20 text-accent text-[10px] font-bold">Tersedia</span>
+                <div className="pt-6 border-t border-white/5">
+                   <div className="flex items-center gap-3">
+                     <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+                     <span className="text-[10px] font-black uppercase tracking-widest text-accent">Real-time Availability</span>
+                   </div>
                 </div>
               </div>
             </GlassCard>

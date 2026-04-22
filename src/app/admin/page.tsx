@@ -81,32 +81,32 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-6 py-24">
       <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
-        <div>
-          <h1 className="text-4xl font-bold flex items-center gap-3">
-            <LayoutDashboard className="w-10 h-10 text-primary" /> SmashGo Admin
+        <div className="space-y-2">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">
+            Command <span className="text-primary">Center</span>
           </h1>
-          <p className="text-white/40 mt-2 italic">Dashboard Manajemen Operasional & Penjadwalan</p>
+          <p className="text-white/40 text-lg">Dashboard Manajemen Operasional & Penjadwalan</p>
         </div>
         
         <div className="flex gap-4">
-           <GlassCard className="py-3 px-6 text-center border-primary/20 bg-primary/5">
-              <span className="text-[10px] uppercase text-white/30 block">Menunggu</span>
-              <span className="text-2xl font-bold text-primary">{stats.pending}</span>
+           <GlassCard className="py-4 px-8 text-center border-primary/20 bg-primary/10 rounded-2xl">
+              <span className="text-[10px] uppercase font-black tracking-[0.2em] text-white/30 block mb-1">Queue</span>
+              <span className="text-3xl font-black text-primary">{stats.pending}</span>
            </GlassCard>
-           <GlassCard className="py-3 px-6 text-center border-accent/20 bg-accent/5">
-              <span className="text-[10px] uppercase text-white/30 block">Terkonfirmasi</span>
-              <span className="text-2xl font-bold text-accent">{stats.confirmed}</span>
+           <GlassCard className="py-4 px-8 text-center border-accent/20 bg-accent/10 rounded-2xl">
+              <span className="text-[10px] uppercase font-black tracking-[0.2em] text-white/30 block mb-1">Active</span>
+              <span className="text-3xl font-black text-accent">{stats.confirmed}</span>
            </GlassCard>
         </div>
       </div>
 
       <div className="space-y-6">
-        <div className="flex items-center justify-between px-4">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-white/40" /> Daftar Booking Terbaru
+        <div className="flex items-center justify-between px-6 py-4 bg-white/[0.02] border border-white/5 rounded-2xl">
+          <h2 className="text-sm font-black uppercase tracking-[0.3em] flex items-center gap-3 text-white/60">
+            <Calendar className="w-5 h-5 text-primary" /> Transaction Logs
           </h2>
-          <Button variant="secondary" className="py-2 px-4 text-xs">
-            <Filter className="w-4 h-4" /> Filter
+          <Button variant="secondary" className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-white/10">
+            <Filter className="w-3 h-3 mr-2" /> Filter Data
           </Button>
         </div>
 
