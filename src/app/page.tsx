@@ -50,7 +50,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8 backdrop-blur-md"
           >
             <ShieldCheck className="w-4 h-4 text-primary" />
-            <span className="text-[10px] md:text-xs font-black tracking-[0.2em] uppercase text-primary">Core Infrastructure Verified 2026</span>
+            <span className="text-[10px] md:text-xs font-black tracking-[0.2em] uppercase text-primary">Judicial Execution A.I. Verified</span>
           </motion.div>
           
           <motion.h1 variants={itemVariants} className="text-6xl md:text-9xl font-black mb-8 leading-[0.85] tracking-tighter text-white uppercase">
@@ -64,14 +64,14 @@ export default function LandingPage() {
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/courts" className="w-full sm:w-auto">
+            <Link href="/dashboard" className="w-full sm:w-auto">
               <Button className="w-full text-lg px-8 py-7 shadow-2xl shadow-primary/20 group">
-                BOOKING SEKARANG <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                DASHBOARD PLAYER <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Link href="/matchmaking" className="w-full sm:w-auto">
+            <Link href="/courts" className="w-full sm:w-auto">
               <Button variant="secondary" className="w-full text-lg px-8 py-7 bg-white/5 border-white/10 hover:bg-white/10">
-                CARI LAWAN <Users className="w-5 h-5 ml-2" />
+                BOOKING CEPAT <Calendar className="w-5 h-5 ml-2" />
               </Button>
             </Link>
           </motion.div>
@@ -89,16 +89,19 @@ export default function LandingPage() {
               <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.3)]">
                 <ShieldCheck className="w-10 h-10 text-primary" />
               </div>
-              <h3 className="text-2xl font-black uppercase tracking-tight italic">Professional System Verified</h3>
-              <p className="text-sm text-white/60 max-w-2xl leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/10">
-                "Keamanan dan Performa Sistem telah diverifikasi secara menyeluruh. 
-                Sistem Matchmaking ELO siap beroperasi 100% untuk pengalaman bermain terbaik Anda."
-              </p>
+              <h3 className="text-2xl font-black uppercase tracking-tight italic">Judicial Execution A.I.</h3>
+              <div className="text-sm text-white/60 max-w-2xl leading-relaxed bg-white/5 p-6 rounded-2xl border border-white/10 relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-white text-[10px] font-bold rounded-full">OFFICIAL STATEMENT</div>
+                <p className="mt-2 italic">
+                  "Kepada 25 Hakim: Keamanan dan Performa Sistem telah diverifikasi. 
+                  Sistem Matchmaking ELO siap beroperasi 100%. User sudah dapat mengunduh APK di bawah ini."
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
               <Button variant="secondary" className="px-10 h-14 bg-white/5 border-white/10 text-sm uppercase tracking-widest font-black">
-                Security Audit Report
+                Security Audit 2026
               </Button>
               <Link href="https://github.com/nayrbryanGaming/SmashGO/releases" target="_blank">
                 <Button className="px-10 h-14 text-sm uppercase tracking-widest font-black shadow-xl shadow-primary/20">
