@@ -1,4 +1,4 @@
-# SmashGo - Booking Lapangan Tanpa Ribet
+# SmashGo - Effortless Badminton Court Booking
 
 **One-liner**: The ultimate local-first corporate badminton management platform with ELO matchmaking and real-time WhatsApp coordination.
 **Live Demo**: [https://smashgo.vercel.app/](https://smashgo.vercel.app/)
